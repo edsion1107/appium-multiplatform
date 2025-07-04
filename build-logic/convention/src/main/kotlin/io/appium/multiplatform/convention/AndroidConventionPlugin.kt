@@ -7,7 +7,6 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuildConfigField
 import com.android.build.api.variant.TestAndroidComponentsExtension
-import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BasePlugin
 import com.android.build.gradle.TestPlugin
@@ -106,13 +105,7 @@ abstract class AndroidConventionPlugin : BasePlugin() {
             extensions.configure<ApplicationAndroidComponentsExtension> {
                 configAndroidComponentsExtension(this).also {
                     onVariants { variant ->
-                        variant.outputs.forEach {
-                            if (it is VariantOutputImpl) {
-                                val fileNameWithVersion = it.outputFileName.get()
-                                    .replace(".apk", "-v${it.versionName.get()}.apk")
-                                it.outputFileName.set(fileNameWithVersion)
-                            }
-                        }
+                        variant.updateFilename(withVersionName = true)
                     }
                 }
             }

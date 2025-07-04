@@ -6,17 +6,8 @@ dependencies {
     compileOnly(libs.android.tools.common)
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlinAndroid.gradlePlugin)
+    implementation(libs.kotlinx.coroutines.core.jvm)
     implementation(libs.adblib)
-//    compileOnly(libs.kotlin.gradlePlugin)
-//    compileOnly(libs.compose.gradlePlugin)
-//    compileOnly(libs.firebase.crashlytics.gradlePlugin)
-//    compileOnly(libs.firebase.performance.gradlePlugin)
-
-//    compileOnly(libs.ksp.gradlePlugin)
-//    compileOnly(libs.room.gradlePlugin)
-//    implementation(libs.truth)
-//    lintChecks(libs.androidx.lint.gradle)
-//    implementation(libs.kotlinx.coroutines.core)
 }
 
 tasks {
@@ -32,6 +23,9 @@ gradlePlugin {
             id = "AndroidConventionPlugin"
             implementationClass = "io.appium.multiplatform.convention.AndroidConventionPlugin"
         }
-
+        register("AppProcessBootstrapPlugin"){
+            id = "AppProcessBootstrapPlugin"
+            implementationClass = "io.appium.multiplatform.convention.AppProcessBootstrapPlugin"
+        }
     }
 }
