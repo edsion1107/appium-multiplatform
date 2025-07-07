@@ -1,0 +1,98 @@
+.SH 名称
+app_process \- Android 应用进程启动器
+
+.SH 概要
+.B app_process
+[vm-options] cmd-dir [--zygote] [--start-system-server] [--application] [--nice-name=name] start-class-name [args...]
+
+.SH 描述
+.B app_process
+命令是运行 Android 应用和系统进程的入口点。它会初始化 Android 运行时（ART 或 Dalvik），然后启动 Zygote 进程、系统服务（System Server）或一个独立的应用程序。
+
+它主要以两种模式运行：
+
+.TP
+.B 1. Zygote 模式
+这是启动 Android 系统的默认模式。
+.B app_process
+会启动 Zygote 进程，该进程会预加载核心的类和资源。随后，Zygote 会通过 fork 的方式创建新的进程来运行每一个 Android 应用，从而实现应用的快速启动和内存共享。
+
+.TP
+.B 2. 应用/工具模式
+在这种模式下，
+.B app_process
+会启动一个独立的 Java 应用程序。这通常用于需要访问 Android 框架的命令行工具。
+
+.SH 选项
+.B app_process
+的选项是按顺序解析的。
+
+.SS JAVA 选项
+任何以连字符 '-' 开头（但不是 '\-\-'）的参数都会被视作 Java 虚拟机选项，并传递给 Android 运行时。常见的例子包括设置 classpath（-cp）或定义系统属性（-D）。
+
+.SS 父目录
+.I parent-dir
+此参数是必需的，但目前系统并未使用它。它是一个用于表示应用程序父目录的占位符。
+
+.SS 内部参数
+以下参数用于控制
+.B app_process
+自身的行为。
+
+.TP
+.BI --zygote
+以 Zygote 模式启动进程。这将初始化 Zygote 服务，该服务会监听启动新应用的请求。使用此标志时，class-name 参数会被忽略，并默认使用 'com.android.internal.os.ZygoteInit'。进程的默认名称将是 'zygote' 或 'zygote64'。
+
+.TP
+.BI --start-system-server
+此标志应与 \fB\-\-zygote\fR 结合使用。它指示 Zygote 进程在初始化后启动 Android 系统服务。
+
+.TP
+.BI --application
+以独立应用程序模式运行。这表明该进程是一个完整的应用程序，而不仅仅是一个简单的命令行工具。
+
+.TP
+.BI --nice-name=process-name
+为进程设置一个易于识别的名称。这个名称会显示在
+.B ps
+和
+.B top
+等工具中。如果未提供，系统将使用默认名称。例如，使用 \fB\-\-zygote\fR 会将易记名称设置为 'zygote'。
+
+.TP
+.I class-name
+在非 Zygote 模式下要执行的 Java 类的完全限定名。该类必须包含一个 main(String[] args) 方法。
+
+.TP
+.I [ options... ]
+在 class-name 之后的所有剩余参数都将作为字符串参数传递给被执行类的 main 方法。
+
+.SH 示例
+.TP
+.B 1. 启动 Zygote 进程和系统服务：
+.nf
+# 这通常是 Android 系统的启动方式
+app_process --zygote --start-system-server --nice-name=zygote /system/bin
+.fi
+
+.TP
+.B 2. 运行一个命令行的 Java 工具：
+.nf
+# 执行 com.example.MyTool，并将 'arg1' 和 'arg2' 传递给它的 main 方法。
+app_process -Dmy.prop=value /system/bin com.example.MyTool arg1 arg2
+.fi
+
+.TP
+.B 3. 运行一个独立的应用程序：
+.nf
+# 启动 com.example.MyApp 作为一个独立的应用程序进程。
+app_process --application --nice-name=my_app /system/bin com.example.MyApp
+.fi
+
+.SH 另请参阅
+.B app_process
+的完整源代码可以在 Android 开源项目 (AOSP) 仓库中找到。在线源码可以通过以下网址浏览：
+.UR https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/cmds/app_process/app_main.cpp
+.UE
+本手册页基于对以下文件的分析：
+.I frameworks/base/cmds/app_process/app_main.cpp

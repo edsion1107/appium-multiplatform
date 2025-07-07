@@ -1,0 +1,119 @@
+.SH NAME
+app_process \- Android application process launcher
+
+.SH SYNOPSIS
+.B app_process
+[vm-options] cmd-dir [--zygote] [--start-system-server] [--application] [--nice-name=name] start-class-name [args...]
+
+.SH DESCRIPTION
+The
+.B app_process
+command is the entry point for running Android applications and system
+processes. It initializes the Android Runtime (ART or Dalvik), and then starts either the
+Zygote process, the system server, or a standalone application.
+
+It can be run in two primary modes:
+
+.TP
+.B 1. Zygote Mode
+This is the default mode for starting the Android system. The
+.B app_process
+starts the Zygote process, which preloads essential classes and resources. Zygote then
+forks new processes for every Android application, enabling fast app startup and
+memory sharing.
+
+.TP
+.B 2. Application/Tool Mode
+In this mode,
+.B app_process
+starts a single, standalone Java
+application. This is commonly used for command-line tools that need access to the
+Android framework.
+
+.SH OPTIONS
+The options for
+.B app_process
+are processed sequentially.
+
+.SS JAVA OPTIONS
+Any argument that starts with a hyphen '-' (but is not '\-\-') is considered a Java VM
+option and will be passed to the Android Runtime. Common examples include setting the
+classpath (-cp) or defining system properties (-D).
+
+.SS PARENT DIRECTORY
+.I parent-dir
+This argument is mandatory but currently unused by the system. It is a placeholder
+for the application's parent directory.
+
+.SS INTERNAL ARGUMENTS
+The following arguments control the behavior of
+.B app_process
+itself.
+
+.TP
+.BI --zygote
+Start the process in Zygote mode. This will initialize the Zygote service, which
+listens for requests to start new applications. When this flag is used, the
+class-name argument is ignored, and 'com.android.internal.os.ZygoteInit' is used
+by default. The default process name will be 'zygote' or 'zygote64'.
+
+.TP
+.BI --start-system-server
+This flag should be used in conjunction with \fB\-\-zygote\fR. It instructs the Zygote
+process to start the Android system server after initialization.
+
+.TP
+.BI --application
+Run in standalone application mode. This indicates that the process is a full
+application rather than a simple command-line tool.
+
+.TP
+.BI --nice-name=process-name
+Set a user-friendly name for the process. This name will appear in tools like
+.B ps
+and
+.B top.
+If not provided, the system will use a default name. For example, using
+.B --zygote
+sets the nice name to 'zygote'.
+
+.TP
+.I class-name
+The fully qualified name of the Java class to execute when not in Zygote mode.
+This class must have a main(String[] args) method.
+
+.TP
+.I [ options... ]
+Any remaining arguments after the class-name are passed as string arguments to the
+main method of the executed class.
+
+.SH EXAMPLES
+.TP
+.B 1. Start the Zygote process and the System Server:
+.nf
+# This is typically how the Android system starts
+app_process --zygote --start-system-server --nice-name=zygote /system/bin
+.fi
+
+.TP
+.B 2. Run a command-line Java tool:
+.nf
+# Executes com.example.MyTool, passing 'arg1' and 'arg2' to its main method.
+app_process -Dmy.prop=value /system/bin com.example.MyTool arg1 arg2
+.fi
+
+.TP
+.B 3. Run a standalone application:
+.nf
+# Starts com.example.MyApp as a standalone application process.
+app_process --application --nice-name=my_app /system/bin com.example.MyApp
+.fi
+
+.SH SEE ALSO
+The full source code for
+.B app_process
+can be found in the Android Open Source Project repositories. The online source can be browsed at:
+.UR https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/cmds/app_process/app_main.cpp
+.UE
+This manual page is based on the analysis of the file:
+.I frameworks/base/cmds/app_process/app_main.cpp
