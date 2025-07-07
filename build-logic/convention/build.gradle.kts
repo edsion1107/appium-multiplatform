@@ -23,9 +23,9 @@ gradlePlugin {
             id = "AndroidConventionPlugin"
             implementationClass = "io.appium.multiplatform.convention.AndroidConventionPlugin"
         }
-        register("AppProcessBootstrapPlugin"){
-            id = "AppProcessBootstrapPlugin"
-            implementationClass = "io.appium.multiplatform.convention.AppProcessBootstrapPlugin"
+        register("AppRuntimePlugin") {
+            id = "AppRuntimePlugin"
+            implementationClass = "io.appium.multiplatform.convention.AppRuntimePlugin"
         }
     }
 }

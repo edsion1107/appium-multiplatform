@@ -67,4 +67,4 @@ atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 
 # Plugins defined by this project
 android-convention-plugin = { id = "AndroidConventionPlugin" }
-android-app-process-plugin = { id = "AppProcessBootstrapPlugin" }
+android-app-runtime-plugin = { id = "AppRuntimePlugin" }
