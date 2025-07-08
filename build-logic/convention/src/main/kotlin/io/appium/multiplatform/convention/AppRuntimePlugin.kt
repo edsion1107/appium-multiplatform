@@ -10,14 +10,13 @@ import io.appium.multiplatform.selectOnlineDevice
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -35,9 +34,18 @@ import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
+/**
+ * Extension for configuring the [AppRuntimePlugin].
+ */
 interface AppRuntimePluginExtension {
+    /** The fully qualified name of the main class to execute. */
     val mainClass: Property<String?>
+
+    /** The serial number of the target Android device. */
     val androidSerial: Property<String?>
+
+    /** Whether to run the task in isolation. */
+    val isolationTask: Property<Boolean?>
 
     companion object {
         const val NAME = "appRuntime"
@@ -45,14 +53,19 @@ interface AppRuntimePluginExtension {
 }
 
 /**
- * AppRuntime(app_process) plugin for run apk
+ * A Gradle plugin to run an application on an Android device using `app_process`.
  *
- * Configuration order: task cli option > Env > Gradle Property > PluginExtension
- * Naming convention (based on name, you can tell the source of the config): android-serial > ANDROID_SERIAL > android-serial-property > androidSerial
+ * This plugin provides tasks to deploy and launch an APK's main class on a connected device.
+ * It resolves configuration in the following order of precedence:
+ * 1. Task command-line options (e.g., `--main-class`, `--android-serial`)
+ * 2. Environment variables (e.g., `MAIN_CLASS`, `ANDROID_SERIAL`)
+ * 3. Gradle properties (e.g., `main-class-property`, `android-serial-property`)
+ * 4. Plugin extension block in `build.gradle.kts` (e.g., `appRuntime { ... }`)
  *
- * Configuration does not support fallback; once a non-null value is found according to the priority, it takes effect.
+ * Configuration does not fall back; the first non-null value found is used.
  */
-abstract class AppRuntimePlugin @Inject constructor(val project: Project) : Plugin<Project> {
+abstract class AppRuntimePlugin @Inject constructor(val project: Project, val objectFactory: ObjectFactory) :
+    Plugin<Project> {
 
     val appRuntimePluginExtension: AppRuntimePluginExtension by lazy {
         project.extensions.create(AppRuntimePluginExtension.NAME, AppRuntimePluginExtension::class.java)
@@ -90,35 +103,43 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) : Plug
             .firstOrNull()
     }
 
+    /**
+     * Applies the plugin to the given project.
+     * It sets up default conventions and configures the app runtime tasks if the Android application plugin is present.
+     */
     override fun apply(target: Project) {
         appRuntimePluginExtension.mainClass.convention(null)
         appRuntimePluginExtension.androidSerial.convention(null)
+        appRuntimePluginExtension.isolationTask.convention(false)
         if (target.plugins.hasPlugin("com.android.application")) {
             target.configureAppRuntime()
         }
     }
 
 
+    /**
+     * Configures the `appRuntimeRun` task for each application variant.
+     * This task is responsible for deploying and running the application using `app_process`.
+     */
     fun Project.configureAppRuntime() {
         plugins.findPlugin(AppPlugin::class.java)?.apply {
             extensions.configure<ApplicationAndroidComponentsExtension> {
                 onVariants { variant ->
                     val variantName = variant.name.replaceFirstChar { it.uppercase() }
-                    val apks = project.objects.listProperty(RegularFile::class.java)
-                    variant.resolveApks(apks)
-                    logger.info("findProperty: ${project.findProperty("serial")}")
                     tasks.register<AppRuntimeRunTask>("appRuntimeRun${variantName}") {
-                        val packageTask =
-                            tasks.named("package${variantName}", PackageApplication::class.java)
-                        dependsOn(packageTask)
-                        apkFiles.set(apks)
+                        if (!appRuntimePluginExtension.isolationTask.get()) {
+                            tasks.named("package${variantName}", PackageApplication::class.java).let {
+                                dependsOn(it)
+                            }
+                        }
+                        apk.set(variant.resolveApk())
                         this@AppRuntimePlugin.mainClass?.let {
                             logger.info("found mainClass, source:${it.first}, value:${it.second}") // If this log is missing, the parameter came from the task’s CLI.
-                            this.mainClass = it.second
+                            mainClass = it.second
                         }
                         this@AppRuntimePlugin.androidSerial?.let {
                             logger.info("found androidSerial, source:${it.first}, value:${it.second}") // If this log is missing, the parameter came from the task’s CLI.
-                            this.androidSerial = it.second
+                            androidSerial = it.second
                         }
                     }
                 }
@@ -127,41 +148,39 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) : Plug
     }
 }
 
+/**
+ * Parameters for the [AppRuntimeWorkAction].
+ */
 interface AppRuntimeWorkParameters : WorkParameters {
-    val apkFiles: ListProperty<RegularFile>
-
+    val apk: RegularFileProperty
     val serial: Property<String>
     val mainClass: Property<String>
 }
 
 
+/**
+ * A Gradle WorkAction that executes the application on a target device using `app_process`.
+ * This action handles pushing the APK, executing the main class, and cleaning up.
+ */
 abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
-
-    private val _defaultLogger: AdbLogger by lazy {
-        JdkLoggerFactory.JdkLogger(AppRuntimeWorkAction::class.java.simpleName)
-    }
-
-    private val _deviceLogger: AdbLogger by lazy {
-        adbLogger(device.session).withDevicePrefix(device)
-    }
-    private val logger: AdbLogger
-        get() = if (::device.isInitialized) {
-            _deviceLogger
-        } else {
-            _defaultLogger
-        }
+    var logger: AdbLogger = JdkLoggerFactory.JdkLogger(AppRuntimeWorkAction::class.java.simpleName)
 
     lateinit var apkFile: File
 
-    lateinit var device: ConnectedDevice
     private val remoteFilePath: Path
         get() = REMOTE_DIR_PATH.resolve(apkFile.name)
 
     /**
+     * Checks if the APK on the remote device needs to be updated.
+     * The check is based on file size and modification time.
      *
-     * 因为权限限制和时间精度不一致，[com.android.adblib.FileStat]和[com.android.adblib.RemoteFileMode]都不能用来判断
+     * Note: This check does not use [com.android.adblib.FileStat] or [com.android.adblib.RemoteFileMode]
+     * for comparison due to permission limitations and inconsistencies in time precision.
+     *
+     * @param device The connected device.
+     * @return `true` if an update is needed, `false` otherwise.
      */
-    private suspend fun checkUpdate(): Boolean {
+    private suspend fun checkUpdate(device: ConnectedDevice): Boolean {
         val localPath = apkFile.toPath()
         val localSize = apkFile.length()
         val localTime = Files.getLastModifiedTime(localPath)
@@ -200,8 +219,12 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
         }
     }
 
-    suspend fun update() {
-        if (checkUpdate()) {
+    /**
+     * Pushes the APK to the device if it needs to be updated.
+     * @param device The connected device.
+     */
+    suspend fun update(device: ConnectedDevice) {
+        if (checkUpdate(device)) {
             logger.info { "push file `${apkFile.absolutePath}` to `$remoteFilePath`" }
             device.fileSystem.sendFile(
                 apkFile.toPath(),
@@ -216,7 +239,11 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
         }
     }
 
-    suspend fun start() {
+    /**
+     * Starts the application on the device using the `app_process` command.
+     * @param device The connected device.
+     */
+    suspend fun start(device: ConnectedDevice) {
         val cmd = buildList {
             add("app_process")
             add("-cp")
@@ -242,9 +269,15 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
                     }
                 }
             }
+        //TODO: kill by pid
     }
 
-    suspend fun stop() {
+    /**
+     * Finds and logs the process IDs (PIDs) of the running `app_process` for the current APK.
+     *
+     * @param device The connected device.
+     */
+    suspend fun stop(device: ConnectedDevice) {
         val pids = mutableSetOf<Int>()
         device.shell.executeAsLines("ps -ef").collect { line ->
             when (line) {
@@ -267,32 +300,39 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
         logger.info { "pids: $pids" }
     }
 
-    fun forceStop() {}
-    override fun execute() {
-        apkFile = parameters.apkFiles.get().map { it.asFile }.firstOrNull { it.exists() && it.isFile }
-            ?: throw GradleException("No valid APK file found in the inputs.")
+    fun forceStop() {
+        TODO("not implemented.")
+    }
 
+    /**
+     * The main entry point for the work action.
+     * It establishes a connection to the device, updates the APK, and runs the application.
+     */
+    override fun execute() {
         runBlocking {
+            apkFile = parameters.apk.get().asFile
             AdbSessionHost().use { host ->
                 AdbSession.create(host, connectionTimeout = 10.seconds.toJavaDuration()).use { session ->
                     logger.info { "serverStatus: ${session.hostServices.serverStatus()}" }
-                    device = session.selectOnlineDevice(parameters.serial.orNull)
-                    logger.info { "connectedDevice: $device" }
-                    update()
-                    try {
-                        device.withScopeContext {
-                            start()
-                        }.withRetry {
-                            logger.warn(it, "withRetry(false)")
-                            false
-                        }
-                            .withFinally {
+                    with(session.selectOnlineDevice(parameters.serial.orNull)) {
+                        logger.info { "connectedDevice: $this" }
+                        adbLogger(this.session).withDevicePrefix(this)//update device logger
+                        update(this)
+                        try {
+                            withScopeContext {
+                                start(this@with)
+                            }.withRetry {
+                                logger.warn(it, "withRetry(false)")
+                                false
+                            }.withFinally {
                                 logger.info { "finished" }
                             }.execute()
-                    } catch (e: CancellationException) {
-                        logger.info(e) { "cancelled" }
+                        } catch (e: CancellationException) {
+                            logger.info(e) { "cancelled" }
+                        } catch (e: RuntimeException) {
+                            logger.info(e) { "cancelled RuntimeException" }
+                        }
                     }
-
                 }
             }
         }
@@ -303,6 +343,10 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
     }
 }
 
+/**
+ * A Gradle task that launches an Android application via `app_process`.
+ * It uses a [WorkerExecutor] to run the deployment and execution logic in a separate process.
+ */
 abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     init {
         group = "run"
@@ -312,8 +356,8 @@ abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
 
-    @get:InputFiles
-    abstract val apkFiles: ListProperty<RegularFile>
+    @get:InputFile
+    abstract val apk: RegularFileProperty
 
     @set:Option(
         option = "main-class",
@@ -328,12 +372,15 @@ abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     @Optional
     var androidSerial: String? = null
 
+    /**
+     * The main action of the task. It submits the [AppRuntimeWorkAction] to the worker executor.
+     */
     @TaskAction
     fun runTask() {
         workerExecutor.noIsolation().submit(AppRuntimeWorkAction::class.java) {
-            apkFiles.set(this@AppRuntimeRunTask.apkFiles)
             serial.set(this@AppRuntimeRunTask.androidSerial)
             mainClass.set(this@AppRuntimeRunTask.mainClass)
+            apk.set(this@AppRuntimeRunTask.apk)
         }
     }
 }
