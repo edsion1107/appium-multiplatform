@@ -53,6 +53,6 @@ android {
 
 appRuntime {
     mainClass = "io.appium.multiplatform.server.DemoKt"
-//    isolationTask = true
+//    isolation= true
 //    androidSerial = "6b410050"
 }

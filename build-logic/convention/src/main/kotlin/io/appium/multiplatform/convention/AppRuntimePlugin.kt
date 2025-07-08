@@ -13,7 +13,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -45,7 +44,7 @@ interface AppRuntimePluginExtension {
     val androidSerial: Property<String?>
 
     /** Whether to run the task in isolation. */
-    val isolationTask: Property<Boolean?>
+    val isolation: Property<Boolean?>
 
     companion object {
         const val NAME = "appRuntime"
@@ -64,11 +63,15 @@ interface AppRuntimePluginExtension {
  *
  * Configuration does not fall back; the first non-null value found is used.
  */
-abstract class AppRuntimePlugin @Inject constructor(val project: Project, val objectFactory: ObjectFactory) :
+abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
     Plugin<Project> {
 
     val appRuntimePluginExtension: AppRuntimePluginExtension by lazy {
         project.extensions.create(AppRuntimePluginExtension.NAME, AppRuntimePluginExtension::class.java)
+    }.apply {
+        value.mainClass.convention(null)
+        value.androidSerial.convention(null)
+        value.isolation.convention(false)
     }
     private val androidSerial: Pair<String, String>? by lazy {
         sequenceOf(
@@ -108,9 +111,6 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project, val ob
      * It sets up default conventions and configures the app runtime tasks if the Android application plugin is present.
      */
     override fun apply(target: Project) {
-        appRuntimePluginExtension.mainClass.convention(null)
-        appRuntimePluginExtension.androidSerial.convention(null)
-        appRuntimePluginExtension.isolationTask.convention(false)
         if (target.plugins.hasPlugin("com.android.application")) {
             target.configureAppRuntime()
         }
@@ -127,10 +127,10 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project, val ob
                 onVariants { variant ->
                     val variantName = variant.name.replaceFirstChar { it.uppercase() }
                     tasks.register<AppRuntimeRunTask>("appRuntimeRun${variantName}") {
-                        if (!appRuntimePluginExtension.isolationTask.get()) {
-                            tasks.named("package${variantName}", PackageApplication::class.java).let {
-                                dependsOn(it)
-                            }
+                        // Note: If there is also an input in the task that corresponds to the outputDirectory of PackageApplication (PackageAndroidArtifact), this will make the tasks implicitly dependent.
+                        // Maybe this is a good practice, but it doesn't achieve the isolation mode I want for easy independent debugging.
+                        if (appRuntimePluginExtension.isolation.orNull != true) {
+                            dependsOn(tasks.named("package${variantName}", PackageApplication::class.java))
                         }
                         apk.set(variant.resolveApk())
                         this@AppRuntimePlugin.mainClass?.let {
@@ -248,6 +248,7 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
             add("app_process")
             add("-cp")
             add(remoteFilePath)
+            add("-Dkotlin-logging-to-android-native=true") // Setting properties instead of configuring kotlin-logging in code
             add("/data/local/tmp")
             add("--application")
             parameters.mainClass.orNull?.let { add(it) }
