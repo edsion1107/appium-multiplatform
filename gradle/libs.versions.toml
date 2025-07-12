@@ -23,6 +23,10 @@ atomicfu = "0.28.0"
 ktx-coroutines = "1.10.2"
 uiautomator = "2.4.0-alpha05"
 adblib = "8.11.0"
+hiddenapibypass = "6.1"
+slf4j = "2.1.0-alpha1"
+
+
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 ktor-server-core = { module = "io.ktor:ktor-server-core" }
@@ -46,6 +50,8 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
 adblib = { module = "com.android.tools.adblib:adblib", version.ref = "adblib" }
+hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenapibypass" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 # Dependencies of the included build-logic
 kotlinAndroid-gradlePlugin = { module = "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin", version.ref = "kotlin" }
@@ -57,6 +63,7 @@ kotlinx-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutin
 ktor-server = ["ktor-server-core", "ktor-server-cio"]
 
 [plugins]
+project-report = { id = "project-report" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

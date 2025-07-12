@@ -171,8 +171,8 @@ abstract class AndroidConventionPlugin : BasePlugin() {
             }
             buildFeatures {
                 buildConfig = true
+                aidl = true
             }
-
         }
 
     private fun Project.configAndroidComponentsExtension(androidComponentsExtension: AndroidComponentsExtension<*, *, *>) =
