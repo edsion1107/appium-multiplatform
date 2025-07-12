@@ -7,3 +7,11 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.android.convention.plugin) apply false
 }
+
+tasks.register("clean", Delete::class).configure {
+    group = "build"
+    description = "Delete the build directory"
+    delete(
+        rootProject.layout.buildDirectory,
+    )
+}
