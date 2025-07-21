@@ -608,3 +608,4 @@ obj/
 # use `mise.local.toml` locally
 mise.toml
 mise.local.toml
+/.kotlin/
