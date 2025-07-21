@@ -27,6 +27,8 @@ kotlin {
                 implementation(libs.kotlin.logging)
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.koin.ktor)
+                implementation("com.sksamuel.hoplite:hoplite-ktor:1.2.3")
+                runtimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
             }
         }
         commonTest {
@@ -36,27 +38,22 @@ kotlin {
         }
         androidMain {
             dependencies {
-//                implementation(libs.uiautomator)
-//                implementation("androidx.test:runner:1.7.0-alpha03")
+                implementation(kotlin("reflect"))
                 implementation("androidx.annotation:annotation:1.9.1")
-                implementation(libs.adblib)
                 implementation(libs.hiddenapibypass)
             }
         }
         androidInstrumentedTest {
             dependencies {
-                implementation(libs.uiautomator)
-                implementation("androidx.test:orchestrator:1.6.0-beta01")
-                implementation("androidx.test:runner:1.7.0-beta01")
-                implementation("androidx.test:rules:1.7.0-beta01")
-                implementation("androidx.test.ext:junit-ktx:1.3.0-beta01")
-                implementation("androidx.test:core-ktx:1.7.0-beta01")
+                implementation(libs.bundles.androidx.test)
             }
         }
         jvmMain {
             dependencies {
                 implementation(libs.adblib)
                 implementation(libs.slf4j.simple)
+                implementation("com.google.testing.platform:core:0.0.9-alpha03")
+                implementation("com.sksamuel.cohort:cohort-ktor:2.7.2") // jvm only
             }
         }
     }
@@ -69,13 +66,13 @@ android {
             java.srcDirs("src/androidMain/java", "src/androidMain/aidl")
         }
     }
-    defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 }
 
 appRuntime {
     mainClass = "io.appium.multiplatform.server.DemoKt"
 //    isolation= true
-//    androidSerial = "6b410050"
+    vmOptions.set(
+        mapOf("kotlin-logging-to-android-native" to "true")
+    )
+//    args.set("sleep=true")
 }

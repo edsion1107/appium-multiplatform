@@ -1,3 +1,4 @@
+@file:Suppress("UnusedReceiverParameter")
 package io.appium.multiplatform.convention
 
 
@@ -17,7 +18,9 @@ val Project.kotlinLanguageVersion
 val Project.targetSdk
     get() :Int = AndroidVersion.VersionCodes.BAKLAVA
 val Project.minSdk
-    get() :Int = AndroidVersion.VersionCodes.LOLLIPOP
+    // LOLLIPOP (android 5, Level 21) does not support runtime permissions, the installation parameters are inconsistent;
+    // uiautomator-shell-android supports at least 23.
+    get() :Int = AndroidVersion.VersionCodes.M
 val Project.compileSdk
     get() :Int = AndroidVersion.VersionCodes.BAKLAVA
 

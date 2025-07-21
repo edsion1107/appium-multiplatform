@@ -1,18 +1,19 @@
 package io.appium.multiplatform.convention
 
-import com.android.adblib.*
-import com.android.adblib.utils.AdbProtocolUtils
-import com.android.adblib.utils.JdkLoggerFactory
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.tasks.PackageApplication
-import io.appium.multiplatform.selectOnlineDevice
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.runBlocking
+import com.android.build.gradle.internal.LoggerWrapper
+import com.android.build.gradle.internal.tasks.InstallVariantTask
+import com.android.build.gradle.internal.testing.ConnectedDeviceProvider
+import com.android.ddmlib.MultiLineReceiver
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -24,27 +25,24 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.io.path.Path
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 /**
  * Extension for configuring the [AppRuntimePlugin].
  */
 interface AppRuntimePluginExtension {
     /** The fully qualified name of the main class to execute. */
-    val mainClass: Property<String?>
-
-    /** The serial number of the target Android device. */
-    val androidSerial: Property<String?>
+    val mainClass: Property<String>
 
     /** Whether to run the task in isolation. */
-    val isolation: Property<Boolean?>
+    val isolation: Property<Boolean>
+
+    /** Java VM option and will be passed to the Android Runtime. */
+    val vmOptions: MapProperty<String, String>
+
+    /** string arguments to the main method of the executed class. */
+    val args: Property<String> //args may involve the composition of many parameters, you can't use map and conversion like vmOptions, just pass it in the original string.
 
     companion object {
         const val NAME = "appRuntime"
@@ -70,24 +68,9 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
         project.extensions.create(AppRuntimePluginExtension.NAME, AppRuntimePluginExtension::class.java)
     }.apply {
         value.mainClass.convention(null)
-        value.androidSerial.convention(null)
         value.isolation.convention(false)
-    }
-    private val androidSerial: Pair<String, String>? by lazy {
-        sequenceOf(
-            "ANDROID_SERIAL" to { System.getenv("ANDROID_SERIAL") },
-            "android-serial-property" to { project.findProperty("android-serial-property")?.toString() },
-            "androidSerial" to { appRuntimePluginExtension.androidSerial.orNull }
-        )
-            .mapNotNull { (source, valueProvider) ->
-                val value = valueProvider()
-                if (!value.isNullOrBlank()) {
-                    source to value
-                } else {
-                    null
-                }
-            }
-            .firstOrNull()
+        value.vmOptions.convention(emptyMap())
+        value.args.convention(null)
     }
     private val mainClass: Pair<String, String>? by lazy {
         sequenceOf(
@@ -96,12 +79,33 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
             "mainClass" to { appRuntimePluginExtension.mainClass.orNull }
         )
             .mapNotNull { (source, valueProvider) ->
-                val value = valueProvider()
-                if (!value.isNullOrBlank()) {
-                    source to value
-                } else {
-                    null
-                }
+                valueProvider()?.takeIf { it.isNotBlank() }?.let { source to it }
+            }
+            .firstOrNull()
+    }
+    private val vmOptions: Pair<String, MutableMap<String, String>>? by lazy {
+        sequenceOf(
+            "VM_OPTIONS" to { parseKeyValueString(System.getenv("VM_OPTIONS"), project.logger) },
+            "vm-options-property" to {
+                parseKeyValueString(
+                    project.findProperty("vm-options-property")?.toString(),
+                    project.logger
+                )
+            },
+            "vmOptions" to { appRuntimePluginExtension.vmOptions.orNull }
+        ).mapNotNull { (source, valueProvider) ->
+            valueProvider()?.takeIf { it.isNotEmpty() }?.let { source to it }
+        }
+            .firstOrNull()
+    }
+    private val args: Pair<String, String>? by lazy {
+        sequenceOf(
+            "ARGS" to { System.getenv("ARGS") },
+            "args-property" to { project.findProperty("args-property")?.toString() },
+            "args" to { appRuntimePluginExtension.args.orNull }
+        )
+            .mapNotNull { (source, valueProvider) ->
+                valueProvider()?.takeIf { it.isNotBlank() }?.let { source to it }
             }
             .firstOrNull()
     }
@@ -116,7 +120,6 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
         }
     }
 
-
     /**
      * Configures the `appRuntimeRun` task for each application variant.
      * This task is responsible for deploying and running the application using `app_process`.
@@ -130,208 +133,24 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
                         // Note: If there is also an input in the task that corresponds to the outputDirectory of PackageApplication (PackageAndroidArtifact), this will make the tasks implicitly dependent.
                         // Maybe this is a good practice, but it doesn't achieve the isolation mode I want for easy independent debugging.
                         if (appRuntimePluginExtension.isolation.orNull != true) {
-                            dependsOn(tasks.named("package${variantName}", PackageApplication::class.java))
+                            dependsOn(tasks.named("install${variantName}", InstallVariantTask::class.java))
                         }
-                        apk.set(variant.resolveApk())
+                        applicationId.set(variant.applicationId)
+                        adbLocation.set(sdkComponents.adb)
+
+                        // Note: The parameters mainClass, vmOptions, and args below come from different scopes.
+                        // Kotlin's qualified this syntax (this@AppRuntimePlugin) is used here to disambiguate.
                         this@AppRuntimePlugin.mainClass?.let {
                             logger.info("found mainClass, source:${it.first}, value:${it.second}") // If this log is missing, the parameter came from the task’s CLI.
-                            mainClass = it.second
+                            mainClassParam = it.second
                         }
-                        this@AppRuntimePlugin.androidSerial?.let {
-                            logger.info("found androidSerial, source:${it.first}, value:${it.second}") // If this log is missing, the parameter came from the task’s CLI.
-                            androidSerial = it.second
+                        this@AppRuntimePlugin.vmOptions?.let {
+                            logger.info("found vmOptions, source:${it.first}, value:${it.second}")
+                            vmOptions.set(it.second)
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Parameters for the [AppRuntimeWorkAction].
- */
-interface AppRuntimeWorkParameters : WorkParameters {
-    val apk: RegularFileProperty
-    val serial: Property<String>
-    val mainClass: Property<String>
-}
-
-
-/**
- * A Gradle WorkAction that executes the application on a target device using `app_process`.
- * This action handles pushing the APK, executing the main class, and cleaning up.
- */
-abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
-    var logger: AdbLogger = JdkLoggerFactory.JdkLogger(AppRuntimeWorkAction::class.java.simpleName)
-
-    lateinit var apkFile: File
-
-    private val remoteFilePath: Path
-        get() = REMOTE_DIR_PATH.resolve(apkFile.name)
-
-    /**
-     * Checks if the APK on the remote device needs to be updated.
-     * The check is based on file size and modification time.
-     *
-     * Note: This check does not use [com.android.adblib.FileStat] or [com.android.adblib.RemoteFileMode]
-     * for comparison due to permission limitations and inconsistencies in time precision.
-     *
-     * @param device The connected device.
-     * @return `true` if an update is needed, `false` otherwise.
-     */
-    private suspend fun checkUpdate(device: ConnectedDevice): Boolean {
-        val localPath = apkFile.toPath()
-        val localSize = apkFile.length()
-        val localTime = Files.getLastModifiedTime(localPath)
-
-        return device.fileSystem.withSyncServices { service ->
-            val remoteStat = try {
-                service.stat(remoteFilePath.toString())
-            } catch (e: IOException) {
-                logger.error(e, "Failed to stat remote file '$remoteFilePath', assuming update is needed.")
-                return@withSyncServices true
-            }
-            if (remoteStat == null) {
-                logger.debug { "Remote file $remoteFilePath does not exist. Update needed." }
-                return@withSyncServices true
-            }
-
-            // Compare file sizes.
-            // Note: AdbLib returns size as Int, which might be an issue for files > 2GB.
-            if (remoteStat.size.toLong() != localSize) {
-                logger.debug { "File size mismatch for $remoteFilePath. Local: $localSize, Remote: ${remoteStat.size}. Update needed." }
-                return@withSyncServices true
-            }
-
-            // Compare modification times (second precision).
-            val remoteTimeEpoch = AdbProtocolUtils.convertFileTimeToEpochSeconds(remoteStat.lastModified)
-            val localTimeEpoch = AdbProtocolUtils.convertFileTimeToEpochSeconds(localTime)
-            if (remoteTimeEpoch != localTimeEpoch) {
-                logger.debug {
-                    "File timestamp mismatch for $remoteFilePath. Local: $localTimeEpoch, Remote: $remoteTimeEpoch. Update needed."
-                }
-                return@withSyncServices true
-            }
-
-            // If all checks pass, no update is needed.
-            false
-        }
-    }
-
-    /**
-     * Pushes the APK to the device if it needs to be updated.
-     * @param device The connected device.
-     */
-    suspend fun update(device: ConnectedDevice) {
-        if (checkUpdate(device)) {
-            logger.info { "push file `${apkFile.absolutePath}` to `$remoteFilePath`" }
-            device.fileSystem.sendFile(
-                apkFile.toPath(),
-                remoteFilePath.toString(),
-                RemoteFileMode.DEFAULT,
-                Files.getLastModifiedTime(apkFile.toPath()),
-                null,
-                SYNC_DATA_MAX
-            )
-        } else {
-            logger.info { "no need to update" }
-        }
-    }
-
-    /**
-     * Starts the application on the device using the `app_process` command.
-     * @param device The connected device.
-     */
-    suspend fun start(device: ConnectedDevice) {
-        val cmd = buildList {
-            add("app_process")
-            add("-cp")
-            add(remoteFilePath)
-            add("-Dkotlin-logging-to-android-native=true") // Setting properties instead of configuring kotlin-logging in code
-            add("/data/local/tmp")
-            add("--application")
-            parameters.mainClass.orNull?.let { add(it) }
-        }.joinToString(" ")
-        logger.info { "cmd: `$cmd`" }
-        device.shell.executeAsLines(cmd, null, 60.seconds.toJavaDuration())
-            .collect { line ->
-                when (line) {
-                    is ShellCommandOutputElement.StdoutLine -> {
-                        logger.info { "stdout: $line" }
-                    }
-
-                    is ShellCommandOutputElement.StderrLine -> {
-                        logger.info { "stderr: $line" }
-                    }
-
-                    is ShellCommandOutputElement.ExitCode -> {
-                        logger.info { "exit code: $line" }
-                    }
-                }
-            }
-        //TODO: kill by pid
-    }
-
-    /**
-     * Finds and logs the process IDs (PIDs) of the running `app_process` for the current APK.
-     *
-     * @param device The connected device.
-     */
-    suspend fun stop(device: ConnectedDevice) {
-        val pids = mutableSetOf<Int>()
-        device.shell.executeAsLines("ps -ef").collect { line ->
-            when (line) {
-                is ShellCommandOutputElement.StdoutLine -> {
-                    if ("app_process" in line.contents && apkFile.name in line.contents) {
-                        pids.add(line.contents.split(Regex("\\s+")).firstNotNullOf { it.toIntOrNull() })
-                    }
-                    logger.info { "stdout: ${line.contents.split(" ")}" }
-                }
-
-                is ShellCommandOutputElement.StderrLine -> {
-                    logger.info { "stderr: $line" }
-                }
-
-                is ShellCommandOutputElement.ExitCode -> {
-                    logger.info { "exit code: $line" }
-                }
-            }
-        }
-        logger.info { "pids: $pids" }
-    }
-
-    fun forceStop() {
-        TODO("not implemented.")
-    }
-
-    /**
-     * The main entry point for the work action.
-     * It establishes a connection to the device, updates the APK, and runs the application.
-     */
-    override fun execute() {
-        runBlocking {
-            apkFile = parameters.apk.get().asFile
-            AdbSessionHost().use { host ->
-                AdbSession.create(host, connectionTimeout = 10.seconds.toJavaDuration()).use { session ->
-                    logger.info { "serverStatus: ${session.hostServices.serverStatus()}" }
-                    with(session.selectOnlineDevice(parameters.serial.orNull)) {
-                        logger.info { "connectedDevice: $this" }
-                        adbLogger(this.session).withDevicePrefix(this)//update device logger
-                        update(this)
-                        try {
-                            withScopeContext {
-                                start(this@with)
-                            }.withRetry {
-                                logger.warn(it, "withRetry(false)")
-                                false
-                            }.withFinally {
-                                logger.info { "finished" }
-                            }.execute()
-                        } catch (e: CancellationException) {
-                            logger.info(e) { "cancelled" }
-                        } catch (e: RuntimeException) {
-                            logger.info(e) { "cancelled RuntimeException" }
+                        this@AppRuntimePlugin.args?.let {
+                            logger.info("found args, source:${it.first}, value:${it.second}")
+                            argsParam = it.second
                         }
                     }
                 }
@@ -339,10 +158,40 @@ abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
         }
     }
 
-    companion object {
-        val REMOTE_DIR_PATH = Path("/data/local/tmp")
-    }
+
 }
+
+private fun parseKeyValueString(input: String?, logger: Logger): MutableMap<String, String> {
+    if (input == null) {
+        return mutableMapOf()
+    }
+    val result = mutableMapOf<String, String>()
+    input.split(",").forEachIndexed { index, entry ->
+        val parts = entry.split("=", limit = 2)
+
+        if (parts.size != 2) {
+            logger.warn("Entry at index $index ('$entry') is invalid and will be skipped.")
+            return@forEachIndexed
+        }
+
+        val key = parts[0].trim()
+        val value = parts[1].trim()
+
+        if (key.isEmpty() || value.isEmpty()) {
+            logger.warn("Empty key or value at index $index ('$entry') will be skipped.")
+            return@forEachIndexed
+        }
+
+        if (result.containsKey(key)) {
+            logger.warn("Duplicate key '$key' found at index $index. Overwriting previous value.")
+        }
+
+        result[key] = value
+    }
+
+    return result
+}
+
 
 /**
  * A Gradle task that launches an Android application via `app_process`.
@@ -358,7 +207,10 @@ abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     abstract val workerExecutor: WorkerExecutor
 
     @get:InputFile
-    abstract val apk: RegularFileProperty
+    abstract val adbLocation: RegularFileProperty
+
+    @get:Input
+    abstract val applicationId: Property<String>
 
     @set:Option(
         option = "main-class",
@@ -366,12 +218,27 @@ abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     )
     @Input
     @Optional
-    var mainClass: String? = null
+    var mainClassParam: String? = null
 
-    @set:Option(option = "android-serial", description = "ADB device serial (overrides `ANDROID_SERIAL`)")
+    @set:Option(
+        option = "vmOptions",
+        description = "Java VM option and will be passed to the Android Runtime.Common examples defining system properties (-D)."
+    )
     @Input
     @Optional
-    var androidSerial: String? = null
+    var vmOptionsParam: String? = null
+
+    @get:Input
+    @get:Optional
+    abstract val vmOptions: MapProperty<String, String>
+
+    @set:Option(
+        option = "args",
+        description = "string arguments to the main method of the executed class."
+    )
+    @Input
+    @Optional
+    var argsParam: String? = null
 
     /**
      * The main action of the task. It submits the [AppRuntimeWorkAction] to the worker executor.
@@ -379,9 +246,104 @@ abstract class AppRuntimeRunTask @Inject constructor() : DefaultTask() {
     @TaskAction
     fun runTask() {
         workerExecutor.noIsolation().submit(AppRuntimeWorkAction::class.java) {
-            serial.set(this@AppRuntimeRunTask.androidSerial)
-            mainClass.set(this@AppRuntimeRunTask.mainClass)
-            apk.set(this@AppRuntimeRunTask.apk)
+            mainClass.set(mainClassParam)
+            val options = parseKeyValueString(vmOptionsParam, logger)
+            if (options.isNotEmpty()) {
+                vmOptions.set(options)
+            } else {
+                vmOptions.set(this@AppRuntimeRunTask.vmOptions)
+            }
+            args.set(this@AppRuntimeRunTask.argsParam)
+            applicationId.set(this@AppRuntimeRunTask.applicationId)
+            adbLocation.set(this@AppRuntimeRunTask.adbLocation)
+        }
+    }
+}
+
+/**
+ * Parameters for the [AppRuntimeWorkAction].
+ */
+interface AppRuntimeWorkParameters : WorkParameters {
+    val mainClass: Property<String>
+    val vmOptions: MapProperty<String, String>
+    val args: Property<String>
+    val applicationId: Property<String>
+    val adbLocation: RegularFileProperty
+}
+
+
+/**
+ * A Gradle WorkAction that executes the application on a target device using `app_process`.
+ * This action handles pushing the APK, executing the main class, and cleaning up.
+ */
+abstract class AppRuntimeWorkAction : WorkAction<AppRuntimeWorkParameters> {
+    val logger = LoggerWrapper(Logging.getLogger(AppRuntimeWorkAction::class.java))
+
+    val cmd by lazy {
+        buildList {
+            add("app_process")
+            classPath?.let { add(it) }
+            if (vmOptions?.isNotEmpty() == true) {
+                vmOptions?.forEach { add(it) }
+            }
+            cmdDir?.let { add(it) }
+            if (isApplication) {
+                add("--application")
+            }
+            mainCLass?.let { add(it) }
+            args?.let { add(it) }
+        }.joinToString(" ")
+    }
+
+    val mainCLass: String? by lazy {
+        parameters.mainClass.orNull
+    }
+    val vmOptions: List<String>? by lazy {
+        parameters.vmOptions.get().map { (k, v) -> "-D$k=$v" }
+    }
+    val args: String? by lazy {
+        parameters.args.orNull
+    }
+    val classPath: String? by lazy {
+        parameters.applicationId.orNull.let { "-cp $(pm path $it)" }
+    }
+    val cmdDir: String? by lazy {
+        "/data/local/tmp"
+    }
+    val isApplication: Boolean = true
+    var hasOutput: Int =
+        0  // ddmlib does not provide stdout, stderr, and return code, so exceptions are only judged by whether there is output (none is present when normal).
+    val logReceiver: MultiLineReceiver = object : MultiLineReceiver() {
+        override fun processNewLines(lines: Array<out String?>?) {
+            lines.orEmpty().filterNotNull().filter(String::isNotBlank)
+                .forEach { line ->
+                    logger.warning(line)
+                    hasOutput++
+                }
+        }
+
+        override fun isCancelled() = false
+
+    }
+
+
+    override fun execute() {
+        val connectedDeviceProvider = ConnectedDeviceProvider(
+            parameters.adbLocation,
+            5_000,
+            logger,
+            System.getenv("ANDROID_SERIAL")
+        )
+        connectedDeviceProvider.use {
+            @Suppress("UnstableApiUsage")
+            connectedDeviceProvider.devices.mapNotNull { it as? com.android.build.gradle.internal.testing.ConnectedDevice }
+                .forEach { connectedDevice ->
+                    logger.lifecycle("device: ${connectedDevice.name}, sn: ${connectedDevice.serialNumber}, state: ${connectedDevice.state}, command: $cmd")
+                    connectedDevice.executeShellCommand(cmd, logReceiver, 0, 0, TimeUnit.SECONDS)
+                }
+            if (hasOutput != 0) {
+                throw GradleException("An unknown error occurred. Please add --info to view details.")
+            }
         }
     }
 }

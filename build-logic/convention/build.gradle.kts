@@ -4,10 +4,9 @@ plugins {
 
 dependencies {
     compileOnly(libs.android.tools.common)
-    compileOnly(libs.android.gradlePlugin)
+    compileOnly(libs.android.gradle.plugin)
     compileOnly(libs.kotlinAndroid.gradlePlugin)
-    implementation(libs.kotlinx.coroutines.core.jvm)
-    implementation(libs.adblib)
+    compileOnly(libs.bundles.appRuntime.plugin)
 }
 
 tasks {
