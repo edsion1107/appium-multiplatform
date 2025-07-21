@@ -1,12 +1,6 @@
-buildscript {
-    dependencies {
-        classpath(libs.adblib)
-    }
-}
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
     alias(libs.plugins.project.report)
@@ -27,7 +21,7 @@ kotlin {
                 implementation(libs.kotlin.logging)
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.koin.ktor)
-                implementation("com.sksamuel.hoplite:hoplite-ktor:1.2.3")
+//                implementation("com.sksamuel.hoplite:hoplite-ktor:1.2.3")
                 runtimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
             }
         }
@@ -36,6 +30,7 @@ kotlin {
 
             }
         }
+
         androidMain {
             dependencies {
                 implementation(kotlin("reflect"))
@@ -52,7 +47,6 @@ kotlin {
             dependencies {
                 implementation(libs.adblib)
                 implementation(libs.slf4j.simple)
-                implementation("com.google.testing.platform:core:0.0.9-alpha03")
                 implementation("com.sksamuel.cohort:cohort-ktor:2.7.2") // jvm only
             }
         }
@@ -63,13 +57,15 @@ android {
     namespace = "com.appium.multiplatform"
     sourceSets {
         getByName("main") {
-            java.srcDirs("src/androidMain/java", "src/androidMain/aidl")
+            java.srcDirs("src/androidMain/java", "src/androidMain/aidl", "src/sharedJvmAndroid/java")
+            resources.srcDirs("src/commonMain/resources") // only android required, no need jvm
         }
     }
 }
 
 appRuntime {
     mainClass = "io.appium.multiplatform.server.DemoKt"
+//    mainClass = "io.appium.multiplatform.MainKt"
 //    isolation= true
     vmOptions.set(
         mapOf("kotlin-logging-to-android-native" to "true")

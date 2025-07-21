@@ -2,7 +2,7 @@ package io.appium.multiplatform.server
 
 import android.annotation.SuppressLint
 import android.content.pm.IPackageManager
-import io.appium.multiplatform.main
+import io.appium.multiplatform.jvm.ReflectiveMethod
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
@@ -10,7 +10,6 @@ private val logger = KotlinLogging.logger {}
 
 @SuppressLint("NewApi")
 fun main(args: Array<String>) {
-    main()
     args.firstOrNull { it.contains("sleep") }?.let {
         for (i in 1..5) {
             Thread.sleep(3_000)
@@ -22,9 +21,11 @@ fun main(args: Array<String>) {
     logger.info { "getPackageManager:start update" }
     val getPackageManager = HiddenApiBypass.getDeclaredMethod(cl, "getPackageManager")
     logger.info { "getPackageManager:$getPackageManager, ${getPackageManager.invoke(null)}" }
-    val packageManager = cl.getDeclaredMethod("getPackageManager").let {
-        it.invoke(null)
-    } as IPackageManager
+    val packageManager: IPackageManager =
+        ReflectiveMethod<IPackageManager>("android.app.AppGlobals", "getPackageManager").invoke(null)
+//    val packageManager = cl.getDeclaredMethod("getPackageManager").let {
+//        it.invoke(null)
+//    } as IPackageManager
 
     logger.info { packageManager.allPackages.joinToString(",") }
     packageManager.getTargetSdkVersion("com.heytap.yoli").let {

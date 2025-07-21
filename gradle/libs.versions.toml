@@ -20,12 +20,14 @@ androidx-test-runner = "1.7.0-beta01"
 adblib = "8.11.0"
 hiddenapibypass = "6.1"
 slf4j = "2.1.0-alpha1"
-
+hoplite = "3.0.0.RC1"
 
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 ktor-server-core = { module = "io.ktor:ktor-server-core" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty" }  # not support android
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
@@ -44,6 +46,7 @@ androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "m
 adblib = { module = "com.android.tools.adblib:adblib", version.ref = "adblib" }
 hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenapibypass" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+hoplite-toml = { module = "com.sksamuel.hoplite:hoplite-toml", version.ref = "hoplite" }
 
 # Dependencies of the included build-logic
 kotlinAndroid-gradlePlugin = { module = "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin", version.ref = "kotlin" }
@@ -54,17 +57,21 @@ android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref =
 kotlinx-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "ktx-coroutines" }
 
 [bundles]
-ktor-server = ["ktor-server-core", "ktor-server-cio"]
+ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
 
 [plugins]
 project-report = { id = "project-report" }
-androidApplication = { id = "com.android.application", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
+# Single variant architecture & Tests disabled by default, `androidLibrary` is marked unstable
+# https://developer.android.com/kotlin/multiplatform/plugin?hl=zh-cn#features
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }  # adds the Ktor BOM
 atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 

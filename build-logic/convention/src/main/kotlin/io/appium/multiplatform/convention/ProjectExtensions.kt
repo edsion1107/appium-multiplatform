@@ -20,7 +20,8 @@ val Project.targetSdk
 val Project.minSdk
     // LOLLIPOP (android 5, Level 21) does not support runtime permissions, the installation parameters are inconsistent;
     // uiautomator-shell-android supports at least 23.
-    get() :Int = AndroidVersion.VersionCodes.M
+    // netty-handler-4.2.2.Final.jar suggest the minSdkVersion to 26 or above,but not work.
+    get() :Int = AndroidVersion.VersionCodes.O
 val Project.compileSdk
     get() :Int = AndroidVersion.VersionCodes.BAKLAVA
 
