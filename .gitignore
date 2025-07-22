@@ -609,3 +609,4 @@ obj/
 mise.toml
 mise.local.toml
 /.kotlin/
+/keystore.properties

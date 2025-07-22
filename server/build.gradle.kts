@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.*
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
@@ -21,8 +24,6 @@ kotlin {
                 implementation(libs.kotlin.logging)
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.koin.ktor)
-//                implementation("com.sksamuel.hoplite:hoplite-ktor:1.2.3")
-                runtimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
             }
         }
         commonTest {
@@ -53,20 +54,48 @@ kotlin {
     }
 }
 
+// Initialize a new Properties() object called keystoreProperties.
+val keystoreProperties = Properties().apply {
+    this.load(FileInputStream(rootProject.file("keystore.properties")))
+}
 android {
     namespace = "com.appium.multiplatform"
     sourceSets {
         getByName("main") {
             java.srcDirs("src/androidMain/java", "src/androidMain/aidl", "src/sharedJvmAndroid/java")
-            resources.srcDirs("src/commonMain/resources") // only android required, no need jvm
+            // only android required, no need jvm.  Notification: Duplicate content roots detected
+            resources.srcDirs("src/commonMain/resources")
+        }
+    }
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+        }
+        release {
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
 
+// dependencies for variant, make output smaller
+dependencies {
+    //TODO: add ktor plugins
+    debugRuntimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
+}
 appRuntime {
-    mainClass = "io.appium.multiplatform.server.DemoKt"
-//    mainClass = "io.appium.multiplatform.MainKt"
-//    isolation= true
+//    mainClass = "io.appium.multiplatform.server.DemoKt"
+    mainClass = "io.appium.multiplatform.MainKt"
+//    isolation = true
     vmOptions.set(
         mapOf("kotlin-logging-to-android-native" to "true")
     )

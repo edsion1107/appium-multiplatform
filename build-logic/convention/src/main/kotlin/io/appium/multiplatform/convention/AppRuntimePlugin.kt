@@ -154,6 +154,17 @@ abstract class AppRuntimePlugin @Inject constructor(val project: Project) :
                         }
                     }
                 }
+                finalizeDsl { dsl ->
+                    dsl.buildTypes.forEach { buildType ->
+                        if (buildType.signingConfig == null) {
+                            // for example, `./gradlew projectReport` will throw TaskExecutionException: `Could not create task ':server:appRuntimeRunRelease'. > Task with name 'installRelease' not found in project ':server'.`
+                            logger.error(
+                                "signingConfig not set for buildType:`${buildType.name}`. AppRuntimeRunTask dependsOn this.\n" +
+                                        "\tadd signingConfig or set `isolation= true`"
+                            )
+                        }
+                    }
+                }
             }
         }
     }
