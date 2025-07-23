@@ -1,12 +1,10 @@
-import java.io.FileInputStream
-import java.util.*
-
 plugins {
+    alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
+//    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
-    alias(libs.plugins.project.report)
 }
 
 group = "io.appium.multiplatform"
@@ -54,10 +52,6 @@ kotlin {
     }
 }
 
-// Initialize a new Properties() object called keystoreProperties.
-val keystoreProperties = Properties().apply {
-    this.load(FileInputStream(rootProject.file("keystore.properties")))
-}
 android {
     namespace = "com.appium.multiplatform"
     sourceSets {
@@ -65,24 +59,6 @@ android {
             java.srcDirs("src/androidMain/java", "src/androidMain/aidl", "src/sharedJvmAndroid/java")
             // only android required, no need jvm.  Notification: Duplicate content roots detected
             resources.srcDirs("src/commonMain/resources")
-        }
-    }
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-        }
-    }
-    buildTypes {
-        debug {
-            isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
-        }
-        release {
-            isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

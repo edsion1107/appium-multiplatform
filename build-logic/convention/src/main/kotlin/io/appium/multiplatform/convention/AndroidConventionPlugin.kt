@@ -17,6 +17,8 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import java.io.FileInputStream
+import java.util.*
 import javax.inject.Inject
 
 
@@ -24,7 +26,9 @@ abstract class AndroidConventionPlugin : BasePlugin() {
 
     @get:Inject
     abstract val project: Project
-
+    val keystoreProperties = Properties().apply {
+        load(FileInputStream(project.rootProject.file("keystore.properties")))
+    }
     private val versionNameProperty: String by lazy {
         project.findProperty("versionName")?.toString()?.trim {
             it.isWhitespace() || it == '\"' || it == '\''
@@ -98,6 +102,17 @@ abstract class AndroidConventionPlugin : BasePlugin() {
                         targetSdk = project.targetSdk
                         versionCode = versionCodeProperty
                         versionName = versionNameProperty
+
+                        buildTypes {
+                            debug {
+                                isMinifyEnabled = false
+                                signingConfig = signingConfigs.getByName("debug")
+                            }
+                            release {
+                                isMinifyEnabled = true
+                                signingConfig = signingConfigs.getByName("release")
+                            }
+                        }
                     }
                 }
             }
@@ -160,6 +175,14 @@ abstract class AndroidConventionPlugin : BasePlugin() {
                     unitTests {
                         isIncludeAndroidResources = true
                         isReturnDefaultValues = true
+                    }
+                }
+                signingConfigs {
+                    create("release") {
+                        keyAlias = keystoreProperties["keyAlias"] as String
+                        keyPassword = keystoreProperties["keyPassword"] as String
+                        storeFile = file(keystoreProperties["storeFile"] as String)
+                        storePassword = keystoreProperties["storePassword"] as String
                     }
                 }
             }
