@@ -1,7 +1,8 @@
+import com.android.build.gradle.internal.tasks.ProcessJavaResTask
+
 plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
-//    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
@@ -57,8 +58,6 @@ android {
     sourceSets {
         getByName("main") {
             java.srcDirs("src/androidMain/java", "src/androidMain/aidl", "src/sharedJvmAndroid/java")
-            // only android required, no need jvm.  Notification: Duplicate content roots detected
-            resources.srcDirs("src/commonMain/resources")
         }
     }
 }
@@ -76,4 +75,16 @@ appRuntime {
         mapOf("kotlin-logging-to-android-native" to "true")
     )
 //    args.set("sleep=true")
+}
+
+tasks.withType(ProcessJavaResTask::class.java).configureEach {
+    doLast {
+        val commonMainResources = outDirectory.get().asFile.resolve("../../../../../../src/commonMain/resources")
+            .normalize()
+        logger.info("outDirectory: ${outDirectory.asFile.orNull},commonMainResources: $commonMainResources")
+        commonMainResources.copyRecursively(
+            outDirectory.get().asFile,
+            overwrite = true
+        )
+    }
 }
