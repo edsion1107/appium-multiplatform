@@ -28,6 +28,7 @@ ktor-server-core = { module = "io.ktor:ktor-server-core" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty" }  # not support android
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml" }
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
@@ -57,7 +58,7 @@ android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref =
 kotlinx-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "ktx-coroutines" }
 
 [bundles]
-ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml"]
+ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml", "ktor-server-call-logging"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
 

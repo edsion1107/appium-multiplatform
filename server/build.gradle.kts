@@ -36,6 +36,7 @@ kotlin {
                 implementation(kotlin("reflect"))
                 implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
+                implementation(libs.slf4j.simple)
             }
         }
         androidInstrumentedTest {
@@ -72,7 +73,10 @@ appRuntime {
     mainClass = "io.appium.multiplatform.MainKt"
 //    isolation = true
     vmOptions.set(
-        mapOf("kotlin-logging-to-android-native" to "true")
+        mapOf(
+            "kotlin-logging-to-android-native" to "true",
+            "org.slf4j.simpleLogger.logFile" to "System.out"
+        )
     )
 //    args.set("sleep=true")
 }
