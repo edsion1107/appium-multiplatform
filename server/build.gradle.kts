@@ -74,8 +74,8 @@ appRuntime {
 //    isolation = true
     vmOptions.set(
         mapOf(
-            "kotlin-logging-to-android-native" to "true",
-            "org.slf4j.simpleLogger.logFile" to "System.out"
+//            "kotlin-logging-to-android-native" to "true",
+//            "org.slf4j.simpleLogger.logFile" to "System.out"
         )
     )
 //    args.set("sleep=true")
