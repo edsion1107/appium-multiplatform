@@ -3,4 +3,4 @@ ktor:
     port: 8080
   application:
     modules:
-      - io.appium.multiplatform.MainKt.module
+      - io.appium.multiplatform.server.ApplicationKt.module

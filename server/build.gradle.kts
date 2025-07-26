@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.kotlinx.atomicfu)
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
 }
@@ -33,10 +35,10 @@ kotlin {
 
         androidMain {
             dependencies {
-                implementation(kotlin("reflect"))
+                implementation(projects.jvmShared)
                 implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
-                implementation(libs.slf4j.simple)
+
             }
         }
         androidInstrumentedTest {
@@ -46,8 +48,8 @@ kotlin {
         }
         jvmMain {
             dependencies {
+                implementation(projects.jvmShared)
                 implementation(libs.adblib)
-                implementation(libs.slf4j.simple)
                 implementation("com.sksamuel.cohort:cohort-ktor:2.7.2") // jvm only
             }
         }
@@ -58,7 +60,7 @@ android {
     namespace = "com.appium.multiplatform"
     sourceSets {
         getByName("main") {
-            java.srcDirs("src/androidMain/java", "src/androidMain/aidl", "src/sharedJvmAndroid/java")
+            java.srcDirs("src/androidMain/java")
         }
     }
 }
@@ -70,12 +72,13 @@ dependencies {
 }
 appRuntime {
 //    mainClass = "io.appium.multiplatform.server.DemoKt"
-    mainClass = "io.appium.multiplatform.MainKt"
+    mainClass = "io.appium.multiplatform.server.ApplicationKt"
 //    isolation = true
     vmOptions.set(
         mapOf(
 //            "kotlin-logging-to-android-native" to "true",
 //            "org.slf4j.simpleLogger.logFile" to "System.out"
+//            "io.ktor.development" to "true", // Auto-reload not support for android
         )
     )
 //    args.set("sleep=true")
