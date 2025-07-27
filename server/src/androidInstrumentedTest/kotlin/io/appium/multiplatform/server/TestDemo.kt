@@ -19,6 +19,7 @@ class TestDemo {
     val uiAutomation: UiAutomation by lazy { InstrumentationRegistry.getInstrumentation().uiAutomation }
 
     val uiDevice: UiDevice by lazy { UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()) }
+
     @Before
     fun setUp() {
         logger.info { "setup" }

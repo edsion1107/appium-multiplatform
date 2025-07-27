@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.kotlinx.atomicfu)
+    alias(libs.plugins.ktx.serialization)
+    alias(libs.plugins.ktx.atomicfu)
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
 }
@@ -23,7 +23,10 @@ kotlin {
             dependencies {
                 implementation(project.dependencies.enforcedPlatform(project(":platform")))
                 implementation(libs.kotlin.logging)
+                implementation(libs.ktx.datetime)
+                implementation(libs.ktx.serialization.json)
                 implementation(libs.bundles.ktor.server)
+                implementation(libs.micrometer.registry.prometheus)
                 implementation(libs.koin.ktor)
             }
         }
@@ -38,7 +41,6 @@ kotlin {
                 implementation(projects.jvmShared)
                 implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
-
             }
         }
         androidInstrumentedTest {
@@ -50,9 +52,12 @@ kotlin {
             dependencies {
                 implementation(projects.jvmShared)
                 implementation(libs.adblib)
-                implementation("com.sksamuel.cohort:cohort-ktor:2.7.2") // jvm only
             }
         }
+    }
+    compilerOptions {
+        extraWarnings.set(true)
+        optIn.add("kotlin.time.ExperimentalTime")
     }
 }
 

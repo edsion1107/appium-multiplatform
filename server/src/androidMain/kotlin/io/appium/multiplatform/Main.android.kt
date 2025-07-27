@@ -4,14 +4,8 @@ import io.appium.multiplatform.jvm.configSlf4j
 import io.appium.multiplatform.jvm.setSystemPropertyIfAbsent
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.serialization.json.Json
 
-actual val defaultJson: Json by lazy {
-    Json {
-        prettyPrint = true
-        isLenient = true
-    }
-}
+
 actual val logger: KLogger = run {
     setSystemPropertyIfAbsent("kotlin-logging-to-android-native", "true")
     configSlf4j()

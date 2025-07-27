@@ -6,21 +6,20 @@ import io.appium.multiplatform.jvm.ReflectiveMethod
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
-private val logger = KotlinLogging.logger {}
-
+val logger = KotlinLogging.logger { }
 @SuppressLint("NewApi")
 fun main(args: Array<String>) {
     args.firstOrNull { it.contains("sleep") }?.let {
         for (i in 1..5) {
             Thread.sleep(3_000)
-            logger.info { "sleep<$i>" }
+            println("sleep<$i>")
         }
-    } ?: logger.info { "no sleep" }
+    } ?: println("no sleep")
 
     val cl = Class.forName("android.app.AppGlobals")
-    logger.info { "getPackageManager:start update" }
+    println("getPackageManager:start update")
     val getPackageManager = HiddenApiBypass.getDeclaredMethod(cl, "getPackageManager")
-    logger.info { "getPackageManager:$getPackageManager, ${getPackageManager.invoke(null)}" }
+    println("getPackageManager:$getPackageManager, ${getPackageManager.invoke(null)}")
     val packageManager: IPackageManager =
         ReflectiveMethod<IPackageManager>("android.app.AppGlobals", "getPackageManager").invoke(null)
 //    val packageManager = cl.getDeclaredMethod("getPackageManager").let {

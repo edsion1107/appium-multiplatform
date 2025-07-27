@@ -5,8 +5,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.kotlinx.serialization) apply false
-    alias(libs.plugins.kotlinx.atomicfu) apply false
+    alias(libs.plugins.ktx.serialization) apply false
+    alias(libs.plugins.ktx.atomicfu) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.android.convention.plugin) apply false
 }
