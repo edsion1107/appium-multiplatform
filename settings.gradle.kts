@@ -3,6 +3,6 @@ rootProject.name = "appium-multiplatform"
 
 includeBuild("build-logic")
 include(":platform")
-include("jvmShared")
+include(":jvmShared")
 include(":server")
 

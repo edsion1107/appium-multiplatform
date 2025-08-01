@@ -1,4 +1,7 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import com.android.build.gradle.internal.tasks.ProcessJavaResTask
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.project.report)
@@ -17,7 +20,11 @@ version = "unspecified"
 kotlin {
     androidTarget()
 //    iosArm64()
-    jvm()
+    jvm{
+        mainRun {
+            mainClass.set("io.appium.multiplatform.server.ApplicationKt")
+        }
+    }
     sourceSets {
         commonMain {
             dependencies {
@@ -62,7 +69,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.appium.multiplatform"
+    namespace = "com.appium.multiplatform.server"
     sourceSets {
         getByName("main") {
             java.srcDirs("src/androidMain/java")
@@ -75,6 +82,7 @@ dependencies {
     //TODO: add ktor plugins
     debugRuntimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
 }
+
 appRuntime {
 //    mainClass = "io.appium.multiplatform.server.DemoKt"
     mainClass = "io.appium.multiplatform.server.ApplicationKt"

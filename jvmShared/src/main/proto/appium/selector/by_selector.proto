@@ -1,0 +1,127 @@
+edition = "2023";
+
+package io.appium.multiplatform;
+option java_outer_classname = "By";
+//option optimize_for = LITE_RUNTIME;
+/**
+ * androidx.test.uiautomator.By
+ * 对应查找控件的方法：androidx.test.uiautomator.UiDevice.findObject(androidx.test.uiautomator.BySelector)
+ *
+ * 由于`androidx.test.uiautomator.BySelector`是私有的，只能通过工厂类`androidx.test.uiautomator.By`来构造。
+ * 这里字段名与By中的方法名是一一对应关系。
+ * 如果该方法只接受一个参数，则字段类型就是参数类型；
+ * 如果该方法只有一个参数，但支持多种类型，则需要定义一个新的使用oneof selector的message，其中每个字段指向一个方法；然后此message作为BySelector的字段类型；
+ * 如果该方法支持多个参数或非基本类型（Scalar Value Types）的参数，则需要定义一个message作为该字段的类型；
+ * 对于以上自定义的message，尽量放在BySelector内部保持密封性；
+ * 有些方法签名相似（比如两个参数都是String），为了语义和逻辑上避免混淆，应使用不同的message作为该字段（方法）的类型；
+ *
+ * 注意：By与BySelector中的方法不是完全的对应关系，比如 androidx.test.uiautomator.BySelector.depth(int min, int max)
+ *
+ */
+message BySelector {
+
+  // String
+  ClassSelector clazz = 1 ;
+  DescriptionSelector desc = 2;
+  string desc_contains = 3; // androidx.test.uiautomator.By.descContains
+  string desc_ends_with = 4; // androidx.test.uiautomator.By.descEndsWith
+  string desc_starts_with = 5;  // androidx.test.uiautomator.By.descStartsWith
+  HintSelector hint = 6; // RequiresApi 26
+  string hint_contains = 7; // androidx.test.uiautomator.By.hintContains, RequiresApi 26
+  string hint_ends_with = 8; // androidx.test.uiautomator.By.hintEndsWith, RequiresApi 26
+  string hint_starts_with = 9; // androidx.test.uiautomator.By.hintStartsWith, RequiresApi 26
+  PkgSelector pkg = 10;
+  ResourceSelector res = 11;
+  TextSelector text = 12;
+  string text_contains = 13;  // androidx.test.uiautomator.By.textContains
+  string text_ends_with = 14; // androidx.test.uiautomator.By.textEndsWith
+  string  text_starts_with = 15; //androidx.test.uiautomator.By.textStartsWith
+  // boolean
+  bool checkable = 21; // androidx.test.uiautomator.By.checkable
+  bool checked = 22; // androidx.test.uiautomator.By.checked
+  bool clickable = 23; // androidx.test.uiautomator.By.clickable
+  bool enabled = 24; // androidx.test.uiautomator.By.enabled
+  bool focusable = 25; // androidx.test.uiautomator.By.focusable
+  bool focused = 26; // androidx.test.uiautomator.By.focused
+  bool long_clickable = 27; // androidx.test.uiautomator.By.longClickable
+  bool scrollable = 28; // androidx.test.uiautomator.By.scrollable
+  bool selected = 29; // androidx.test.uiautomator.By.selected
+  // number
+  int32 depth = 31; // androidx.test.uiautomator.By.depth
+  int32 display_id = 32; // androidx.test.uiautomator.By.displayId, RequiresApi 30
+
+  // other
+  BySelector copy = 41; // androidx.test.uiautomator.By.copy
+  AncestorSelector has_ancestor = 42;
+  BySelector has_child = 43; // androidx.test.uiautomator.By.hasChild
+  DescendantSelector has_descendant = 44;
+  BySelector has_parent = 45; // androidx.test.uiautomator.By.hasParent
+
+  message ClassSelector {
+    oneof selector {
+      ClassNameWithPackage full_class_name = 1; // androidx.test.uiautomator.By.clazz(java.lang.String, java.lang.String)
+      string class_name_string = 2;                    // androidx.test.uiautomator.By.clazz(java.lang.String)
+      string class_name_pattern = 3;           // androidx.test.uiautomator.By.clazz(java.util.regex.Pattern)
+      string class_reflection_name = 4;        // androidx.test.uiautomator.By.clazz(java.lang.Class)，一般不会用到
+    }
+    message ClassNameWithPackage {
+      string package_name = 1;
+      string class_name = 2;
+    }
+  }
+  message DescriptionSelector {
+    oneof selector{
+      string description_string = 1; // androidx.test.uiautomator.By.desc(java.lang.String)
+      string description_pattern = 2; // androidx.test.uiautomator.By.desc(java.util.regex.Pattern)
+    }
+  }
+  message AncestorSelector {
+    oneof selector{
+      BySelector ancestor_selector = 1; // androidx.test.uiautomator.By.hasAncestor(androidx.test.uiautomator.BySelector)
+      AncestorDistance ancestor_selector_max = 2; // androidx.test.uiautomator.By.hasAncestor(androidx.test.uiautomator.BySelector, int)
+    }
+    message AncestorDistance{
+      BySelector by_selector = 1;
+      uint32 max = 2;
+    }
+  }
+  message DescendantSelector {
+    oneof selector{
+      BySelector descendant_selector = 1; // androidx.test.uiautomator.By.hasDescendant(androidx.test.uiautomator.BySelector)
+      DescendantDistance descendant_selector_max = 2; // androidx.test.uiautomator.By.hasDescendant(androidx.test.uiautomator.BySelector, int)
+    }
+    message DescendantDistance {
+      BySelector by_selector = 1;
+      uint32 max = 2;
+    }
+  }
+  message HintSelector {
+    oneof selector{
+      string hint_string = 1; // androidx.test.uiautomator.By.hint(java.lang.String)
+      string hint_pattern = 2; // androidx.test.uiautomator.By.hint(java.util.regex.Pattern)
+    }
+  }
+  message PkgSelector {
+    oneof selector{
+      string application_package_string = 1; // androidx.test.uiautomator.By.pkg(java.lang.String)
+      string application_package_pattern = 2; // androidx.test.uiautomator.By.pkg(java.util.regex.Pattern)
+    }
+  }
+  message ResourceSelector {
+    oneof selector {
+      ResourceWithPackage full_resource_name = 1; // androidx.test.uiautomator.By.res(java.lang.String, java.lang.String)
+      string resource_name_string = 2;                    // androidx.test.uiautomator.By.clazz(java.lang.String)
+      string resource_name_pattern = 3;           // androidx.test.uiautomator.By.clazz(java.util.regex.Pattern)
+    }
+    message ResourceWithPackage {
+      string resource_package = 1;
+      string resource_id = 2;
+    }
+  }
+  message TextSelector{
+    oneof selector{
+      string text_string = 1; // androidx.test.uiautomator.By.text(java.util.regex.Pattern)
+      string text_pattern = 2; // androidx.test.uiautomator.By.text(java.lang.String)
+    }
+  }
+}

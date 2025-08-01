@@ -24,9 +24,15 @@ hiddenapibypass = "6.1"
 slf4j = "2.1.0-alpha1"
 hoplite = "3.0.0.RC1"
 micrometer = "1.15.2"
+protobuf = "4.31.1"
+protobuf-plugin = "0.9.5"
 
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
+
 ktor-server-core = { module = "io.ktor:ktor-server-core" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty" }  # not support android
@@ -45,9 +51,7 @@ ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation" }
-ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
-koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
-kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
+
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -69,6 +73,11 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 hoplite-toml = { module = "com.sksamuel.hoplite:hoplite-toml", version.ref = "hoplite" }
 micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
+protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
+protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
+protobuf-java-util = {module = "com.google.protobuf:protobuf-java-util",version.ref = "protobuf"}
+protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
 
 # Dependencies of the included build-logic
 kotlinAndroid-gradlePlugin = { module = "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin", version.ref = "kotlin" }
@@ -100,6 +109,7 @@ ktx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }  # adds the Ktor BOM
 ktx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 
 # Plugins defined by this project
 android-convention-plugin = { id = "AndroidConventionPlugin" }
