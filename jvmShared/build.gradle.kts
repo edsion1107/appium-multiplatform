@@ -64,10 +64,18 @@ tasks.withType<GenerateProtoTask>().configureEach {
         }
 
     doLast {
-        cmdResult.forEach {
-            val result = it.result.get()
-            logger.error("stderr: {}", it.standardError.asText.get())
-            logger.info("stdout: {}", it.standardOutput.asText.get())
+        cmdResult.forEach { execOutput ->
+            val result = execOutput.result.get()
+            execOutput.standardError.asText.get().let {
+                if (it.isNotBlank()){
+                    logger.error("stderr: {}", execOutput.standardError.asText.get())
+                }
+            }
+            execOutput.standardOutput.asText.get().let {
+                if (it.isNotBlank()){
+                    logger.info("stdout: {}", execOutput.standardOutput.asText.get())
+                }
+            }
             // result.rethrowFailure() // Not compatible — does not throw as expected
             result.assertNormalExitValue()
         }
