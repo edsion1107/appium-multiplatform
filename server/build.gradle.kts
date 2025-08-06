@@ -3,12 +3,14 @@
 import com.android.build.gradle.internal.tasks.ProcessJavaResTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
+
 plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.ktx.atomicfu)
+    id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
     alias(libs.plugins.android.convention.plugin)
     alias(libs.plugins.android.app.runtime.plugin)
 }
@@ -34,7 +36,7 @@ kotlin {
                 implementation(libs.ktx.serialization.json)
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.micrometer.registry.prometheus)
-                implementation(libs.koin.ktor)
+//                implementation(libs.koin.ktor)
             }
         }
         commonTest {
@@ -48,6 +50,7 @@ kotlin {
                 implementation(projects.jvmShared)
                 implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
+                implementation(libs.bundles.androidx.test)
             }
         }
         androidInstrumentedTest {
@@ -55,6 +58,7 @@ kotlin {
                 implementation(libs.bundles.androidx.test)
             }
         }
+
         jvmMain {
             dependencies {
                 implementation(projects.jvmShared)
@@ -95,16 +99,4 @@ appRuntime {
         )
     )
 //    args.set("sleep=true")
-}
-
-tasks.withType(ProcessJavaResTask::class.java).configureEach {
-    doLast {
-        val commonMainResources = outDirectory.get().asFile.resolve("../../../../../../src/commonMain/resources")
-            .normalize()
-        logger.info("outDirectory: ${outDirectory.asFile.orNull},commonMainResources: $commonMainResources")
-        commonMainResources.copyRecursively(
-            outDirectory.get().asFile,
-            overwrite = true
-        )
-    }
 }

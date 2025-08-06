@@ -26,6 +26,7 @@ hoplite = "3.0.0.RC1"
 micrometer = "1.15.2"
 protobuf = "4.31.1"
 protobuf-plugin = "0.9.5"
+zipline = "1.22.0"
 
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -51,7 +52,7 @@ ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation" }
-
+ktor-server-di = { module = "io.ktor:ktor-server-di" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -76,8 +77,9 @@ micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-p
 protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
-protobuf-java-util = {module = "com.google.protobuf:protobuf-java-util",version.ref = "protobuf"}
+protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
 protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
+zipline-gradle-plugin = { module="app.cash.zipline:zipline-gradle-plugin", version.ref = "zipline" }
 
 # Dependencies of the included build-logic
 kotlinAndroid-gradlePlugin = { module = "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin", version.ref = "kotlin" }
@@ -92,7 +94,7 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
     "ktor-server-content-negotiation", "ktor-serialization-kotlinx-json", "ktor-server-resources",
     "ktor-server-auto-head-response", "ktor-server-default-headers", "ktor-server-caching-headers",
     "ktor-server-compression", "ktor-server-conditional-headers", "ktor-server-cors", "ktor-server-forwarded-header",
-    "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation"]
+    "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation","ktor-server-di"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
 
@@ -110,6 +112,7 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }  # adds the Ktor BOM
 ktx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
+zipline = { id = "app.cash.zipline", version.ref = "zipline" }
 
 # Plugins defined by this project
 android-convention-plugin = { id = "AndroidConventionPlugin" }

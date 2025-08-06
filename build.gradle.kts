@@ -1,3 +1,8 @@
+buildscript{
+    dependencies {
+        classpath(libs.zipline.gradle.plugin)
+    }
+}
 plugins {
     alias(libs.plugins.project.report) apply true
     alias(libs.plugins.android.application) apply false
