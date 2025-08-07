@@ -13,7 +13,6 @@ plugins {
     alias(libs.plugins.ktx.serialization) apply false
     alias(libs.plugins.ktx.atomicfu) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
-    alias(libs.plugins.android.convention.plugin) apply false
     alias(libs.plugins.protobuf) apply false
 }
 

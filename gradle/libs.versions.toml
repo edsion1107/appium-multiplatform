@@ -113,7 +113,3 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }  # adds the Ktor BOM
 ktx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }
-
-# Plugins defined by this project
-android-convention-plugin = { id = "AndroidConventionPlugin" }
-android-app-runtime-plugin = { id = "AppRuntimePlugin" }

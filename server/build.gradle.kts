@@ -11,8 +11,8 @@ plugins {
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.ktx.atomicfu)
     id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
-    alias(libs.plugins.android.convention.plugin)
-    alias(libs.plugins.android.app.runtime.plugin)
+    id("AndroidConventionPlugin")
+    id("AppRuntimePlugin")
 }
 
 group = "io.appium.multiplatform"
