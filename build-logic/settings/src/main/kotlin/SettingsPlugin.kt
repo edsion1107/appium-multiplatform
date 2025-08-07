@@ -1,3 +1,4 @@
+@file:Suppress("UnstableApiUsage")
 package io.appium.multiplatform.convention
 
 import org.gradle.api.Plugin
@@ -13,8 +14,8 @@ class SettingsPlugin : Plugin<Settings> {
         pluginManagement {
             repositories {
                 gradlePluginPortal()
-                googleWithContentFilter()
                 mavenCentral()
+                googleWithContentFilter()
                 kotlinxRpcMaven()
             }
         }
@@ -22,8 +23,8 @@ class SettingsPlugin : Plugin<Settings> {
         dependencyResolutionManagement {
             repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
             repositories {
-                googleWithContentFilter()
                 mavenCentral()
+                googleWithContentFilter()
                 kotlinxRpcMaven()
             }
         }
