@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package io.appium.multiplatform.service;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "io/appium/multiplatform/model/uiautomator.proto";
+
+message FindElementRequest {
+  oneof selector {
+    option (buf.validate.oneof).required = true;
+    io.appium.multiplatform.model.UiSelector ui = 2;
+    io.appium.multiplatform.model.BySelector by = 3;
+  }
+  string session_id = 11 [(buf.validate.field).string.uuid = true];
+  bool is_multiple = 12;
+  bool is_strict = 13;
+}
+message FindElementResponse {
+  oneof object {
+    io.appium.multiplatform.model.UiObject uiobject = 1;
+    io.appium.multiplatform.model.UiObject2 uiobject2 = 2;
+  }
+}
+
+message FindElementResponses {
+  repeated FindElementResponse elements = 1;
+}
+
+service WebdriverService {
+  rpc FindElement(FindElementRequest) returns (FindElementResponse) {
+    option (google.api.http) = {get: "/session/{name=session_id}/elements"};
+  }
+  rpc FindElements(FindElementRequest) returns (FindElementResponses);
+}

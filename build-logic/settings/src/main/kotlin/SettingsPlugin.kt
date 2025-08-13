@@ -16,7 +16,6 @@ class SettingsPlugin : Plugin<Settings> {
                 gradlePluginPortal()
                 mavenCentral()
                 googleWithContentFilter()
-                kotlinxRpcMaven()
             }
         }
 
@@ -25,7 +24,6 @@ class SettingsPlugin : Plugin<Settings> {
             repositories {
                 mavenCentral()
                 googleWithContentFilter()
-                kotlinxRpcMaven()
             }
         }
     }
@@ -44,8 +42,7 @@ class SettingsPlugin : Plugin<Settings> {
         maven {
             url = URI("https://maven.pkg.jetbrains.space/public/p/krpc/grpc")
             content {
-                includeModuleByRegex("org.jetbrains.kotlinx","kotlinx-rpc-.*")
-                includeGroup("org.jetbrains.kotlinx.rpc.plugin")
+                includeGroupAndSubgroups("org.jetbrains.kotlinx")
             }
         }
     }

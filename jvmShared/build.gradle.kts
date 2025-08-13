@@ -1,94 +1,63 @@
-import com.google.protobuf.gradle.ExecutableLocator
-import com.google.protobuf.gradle.GenerateProtoTask
-import com.google.protobuf.gradle.GenerateProtoTask.generateCmds
-import com.google.protobuf.gradle.GenerateProtoTask.getCmdLengthLimit
-import com.google.protobuf.gradle.ProtobufExtension
-import com.google.protobuf.gradle.ToolsLocator
+import build.buf.gradle.GENERATED_DIR
+import build.buf.gradle.BUF_BUILD_DIR
+import build.buf.gradle.GenerateTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.protobuf)
+    alias(libs.plugins.buf)
 }
 
 group = "io.appium.multiplatform"
 version = "1.0"
 
 
+sourceSets {
+    main {
+        // https://github.com/bufbuild/buf-gradle-plugin/issues/190
+        java.srcDirs(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/java"))
+        kotlin.srcDirs(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/kotlin"))
+    }
+}
+
 dependencies {
-    implementation(project.dependencies.enforcedPlatform(project(":platform")))
+    implementation(project.dependencies.enforcedPlatform(projects.platform))
     implementation(kotlin("reflect"))
     implementation(libs.slf4j.simple)
+    api(libs.bundles.protovalidate){
+        exclude(group="com.google.code.findbugs",module="annotations")
+        because("Duplicate class javax.annotation.CheckForNull with jsr305")
+    }
+//    api("io.envoyproxy.protoc-gen-validate:pgv-java-stub:0.6.13")
+//    api("com.google.api.grpc:proto-google-common-protos:2.60.0")
+    implementation(libs.grpc.kotlin.stub)
+    implementation(libs.grpc.protobuf)
+    implementation(libs.grpc.stub)
+    api(libs.grpc.core)
+//    api("io.grpc:grpc-netty-shaded")
+    api(libs.grpc.okhttp)
     api(libs.protobuf.java.util)
     api(libs.protobuf.kotlin)   // include protobuf-java
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protoc.get()
-            .toString() // Must not be added as an implementation dependency; this ensures the executable is correctly resolved
+buf {
+    publishSchema = false
+    enforceFormat = true
+    build { }
+    generate{
+        includeImports = false
     }
 }
 
-tasks.withType<GenerateProtoTask>().configureEach {
-    builtins {
-        named("java") {
-            // Do not enable lite mode — required for compatibility with JSON serialization/deserialization
-//            option("lite")
-        }
-    }
+val generateTasks = tasks.withType<GenerateTask>()
 
-    // Add extra code generation targets (e.g., Python) via reflection — avoids requiring additional plugins
-    val extension = project.extensions.findByType<ProtobufExtension>()
-    val toolsField = ProtobufExtension::class.java.getDeclaredField("tools")
-    toolsField.isAccessible = true
-    val tools = (toolsField.get(extension) as? ToolsLocator)
-
-    val computeExecutablePathMethod =
-        GenerateProtoTask::class.java.getDeclaredMethod("computeExecutablePath", ExecutableLocator::class.java)
-    computeExecutablePathMethod.isAccessible = true
-
-    val protocPath = computeExecutablePathMethod.invoke(this, tools?.protoc)
-    logger.info("protocPath: $protocPath")
-
-    val baseCmd = mutableListOf(protocPath.toString())
-    baseCmd.addAll(includeDirs.filter { it.exists() && it.name.endsWith("proto") }.map { "-I${it.path}" })
-
-    baseCmd.add("--kotlin_out=${outputBaseDir}/java")       // Consider also adding --python_out or --pyi_out if needed
-
-
-    baseCmd.add("--python_out=${outputBaseDir}/python")
-    baseCmd.add("--pyi_out=${outputBaseDir}/python")
-
-    logger.info("baseCmd : $baseCmd, outputBaseDir: $outputBaseDir")
-
-    val cmdResult = generateCmds(baseCmd, sourceDirs.asFileTree.files.toMutableList(), getCmdLengthLimit())
-        .map {
-            providers.exec {
-                commandLine(it)
-                isIgnoreExitValue = true // Capture stdout and stderr for manual inspection
-            }
-        }
-
-    doLast {
-        File(outputBaseDir, "python").mkdirs()
-        cmdResult.forEach { execOutput ->
-            val result = execOutput.result.get()
-            execOutput.standardError.asText.get().let {
-                if (it.isNotBlank()) {
-                    logger.error("stderr: {}", execOutput.standardError.asText.get())
-                }
-            }
-            execOutput.standardOutput.asText.get().let {
-                if (it.isNotBlank()) {
-                    logger.info("stdout: {}", execOutput.standardOutput.asText.get())
-                }
-            }
-            // result.rethrowFailure() // Not compatible — does not throw as expected
-            result.assertNormalExitValue()
-        }
-    }
+tasks.withType<KotlinCompile>().configureEach {
+    dependsOn(generateTasks)
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    dependsOn(generateTasks)
+}
 val copyCommonMainResources by tasks.registering(Copy::class) {
     val processResources by tasks.named("processResources", ProcessResources::class.java)
     val commonMainResources = project.layout.projectDirectory.files("../server/src/commonMain/resources")
