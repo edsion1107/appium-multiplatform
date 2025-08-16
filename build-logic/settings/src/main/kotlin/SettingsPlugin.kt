@@ -24,6 +24,7 @@ class SettingsPlugin : Plugin<Settings> {
             repositories {
                 mavenCentral()
                 googleWithContentFilter()
+                kotlinxRpcMaven()
             }
         }
     }

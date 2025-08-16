@@ -20,15 +20,17 @@ plugins:
     # protovalidate不支持kotlin，所以必须生成java代码，生成的kotlin代码就显得不会用到，但是可以在测试期间用kotlin的dsl来简化测试。
   - remote: buf.build/grpc/kotlin:v1.4.3
     out: kotlin
-#  - remote: buf.build/protocolbuffers/python:v31.1
-#    out: python
-#  - remote: buf.build/protocolbuffers/pyi:v31.1
-#    out: python
-#  - remote: buf.build/protocolbuffers/js:v3.21.4
-#    out: js
-#  - remote: buf.build/bufbuild/es:v2.6.3
-#    out: ts
-#  - remote: buf.build/bufbuild/protoschema-jsonschema:v0.5.2
-#    out: jsonschema
+  - remote: buf.build/grpc/swift-protobuf:v2.0.0
+    out: swift
+  - remote: buf.build/protocolbuffers/python:v31.1
+    out: python
+  - remote: buf.build/protocolbuffers/pyi:v31.1
+    out: python
+  - remote: buf.build/protocolbuffers/js:v3.21.4
+    out: js
+  - remote: buf.build/bufbuild/es:v2.6.3
+    out: ts
+  - remote: buf.build/bufbuild/protoschema-jsonschema:v0.5.2
+    out: jsonschema
 inputs:
-  - directory: src/main/proto
+  - directory: src/commonMain/proto

@@ -1,14 +1,13 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
-import com.android.build.gradle.internal.tasks.ProcessJavaResTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 
 plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
     alias(libs.plugins.ktx.serialization)
+//    alias(libs.plugins.ksp)
     alias(libs.plugins.ktx.atomicfu)
     id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
     id("AndroidConventionPlugin")
@@ -30,14 +29,15 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project.dependencies.enforcedPlatform(project(":platform")))
-                implementation(libs.kotlin.logging)
-                implementation(libs.ktx.datetime)
-                implementation(libs.ktx.serialization.json)
+                implementation(project.dependencies.enforcedPlatform(projects.platform))
+                implementation(projects.shared)
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.micrometer.registry.prometheus)
-//                implementation(libs.koin.ktor)
+                implementation(libs.koin.ktor)
+                api(libs.koin.annotations)
+                implementation("org.jetbrains.kotlinx:kotlinx-rpc-grpc-ktor-server:0.10.0-grpc-122")
             }
+            kotlin.srcDir("${layout.buildDirectory}/generated/ksp/metadata/commonMain/kotlin")
         }
         commonTest {
             dependencies {
@@ -50,6 +50,7 @@ kotlin {
                 implementation(projects.jvmShared)
                 implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
+                implementation(libs.koin.android)
                 implementation(libs.bundles.androidx.test)
             }
         }
@@ -63,12 +64,14 @@ kotlin {
             dependencies {
                 implementation(projects.jvmShared)
                 implementation(libs.adblib)
+                implementation(libs.koin.logger.slf4j)
             }
         }
     }
     compilerOptions {
-        extraWarnings.set(true)
+//        extraWarnings.set(true)   // TODO: wire plugin not support, waiting for a fix
         optIn.add("kotlin.time.ExperimentalTime")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 
@@ -84,7 +87,7 @@ android {
 // dependencies for variant, make output smaller
 dependencies {
     //TODO: add ktor plugins
-    debugRuntimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
+//    debugRuntimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
 }
 
 appRuntime {

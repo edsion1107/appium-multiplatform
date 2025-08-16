@@ -7,12 +7,16 @@ androidx-testExt = "1.2.1"
 composeMultiplatform = "1.8.1"
 junit = "4.13.2"
 kotlin = "2.2.0"
+ksp = "2.2.0-2.0.2" # 注意保持与 kotlin 版本号一致
 ktor = "3.2.2"
 grpc = "1.74.0"
 grpc-stub-kt = "1.4.3"
+google-common-proto = "2.60.0"
 protovalidate = "1.0.0-rc.4"
 pgv-java-stub = "0.6.13"
+wire = "5.3.10"
 koin = "4.1.0"
+koin-annotations = "2.1.0"
 kotest = "5.9.1"
 kotlin-logging = "7.0.7"
 monitor = "1.7.2"
@@ -37,8 +41,10 @@ zipline = "1.22.0"
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-annotations-bom = { module = "io.insert-koin:koin-annotations-bom", version.ref = "koin-annotations" }
 kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
 grpc-bom = { module = "io.grpc:grpc-bom", version.ref = "grpc" }
+wire-bom = { module = "com.squareup.wire:wire-bom", version.ref = "wire" }
 
 ktor-server-core = { module = "io.ktor:ktor-server-core" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
@@ -64,9 +70,12 @@ grpc-okhttp = { module = "io.grpc:grpc-okhttp" }
 grpc-stub = { module = "io.grpc:grpc-stub" }
 grpc-protobuf = { module = "io.grpc:grpc-protobuf" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-stub-kt" }
+google-common-protos = { module = "com.google.api.grpc:proto-google-common-protos", version.ref = "google-common-proto" }
 protovalidate = { module = "build.buf:protovalidate", version.ref = "protovalidate" }
 pgv-java-stub = { module = "io.envoyproxy.protoc-gen-validate:pgv-java-stub", version.ref = "pgv-java-stub" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-annotations = { module = "io.insert-koin:koin-annotations" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
@@ -125,7 +134,9 @@ ktx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.
 # https://developer.android.com/kotlin/multiplatform/plugin?hl=zh-cn#features
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }  # adds the Ktor BOM
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 buf = { id = "build.buf", version.ref = "buf" }
+wire = { id = "com.squareup.wire", version.ref = "wire" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }

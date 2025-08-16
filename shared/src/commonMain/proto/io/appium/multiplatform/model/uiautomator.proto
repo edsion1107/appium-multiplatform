@@ -7,7 +7,7 @@ package io.appium.multiplatform.model;
 
 import "buf/validate/validate.proto";
 
-message JavaRegexPattern {
+message RegexPattern {
   // startsWith: "^%s.*$"
   // endsWith: "^.*%s$"
   // contains: "^.*%s.*$"
@@ -102,12 +102,12 @@ message BySelector {
   optional uint32 depth = 15 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.By.depth
   optional uint32 display_id = 16 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.By.displayId, RequiresApi 30
   optional string hint = 17 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.hint(java.lang.String),RequiresApi 26
-  optional JavaRegexPattern hint_pattern = 18; // androidx.test.uiautomator.By.hint(java.util.regex.Pattern),RequiresApi 26
-  optional JavaRegexPattern clazz_pattern = 19; // androidx.test.uiautomator.By.clazz(java.util.regex.Pattern)
-  optional JavaRegexPattern desc_pattern = 20; // androidx.test.uiautomator.By.desc(java.util.regex.Pattern)
-  optional JavaRegexPattern pkg_pattern = 21; // androidx.test.uiautomator.By.pkg(java.util.regex.Pattern)
-  optional JavaRegexPattern res_pattern = 22; // androidx.test.uiautomator.By.res(java.util.regex.Pattern)
-  optional JavaRegexPattern text_pattern = 23; // androidx.test.uiautomator.By.text(java.util.regex.Pattern)
+  optional RegexPattern hint_pattern = 18; // androidx.test.uiautomator.By.hint(java.util.regex.Pattern),RequiresApi 26
+  optional RegexPattern clazz_pattern = 19; // androidx.test.uiautomator.By.clazz(java.util.regex.Pattern)
+  optional RegexPattern desc_pattern = 20; // androidx.test.uiautomator.By.desc(java.util.regex.Pattern)
+  optional RegexPattern pkg_pattern = 21; // androidx.test.uiautomator.By.pkg(java.util.regex.Pattern)
+  optional RegexPattern res_pattern = 22; // androidx.test.uiautomator.By.res(java.util.regex.Pattern)
+  optional RegexPattern text_pattern = 23; // androidx.test.uiautomator.By.text(java.util.regex.Pattern)
   optional BySelector copy = 31; // androidx.test.uiautomator.By.copy
   optional BySelector has_ancestor = 32; // androidx.test.uiautomator.By.hasAncestor(androidx.test.uiautomator.BySelector)
   optional BySelector has_child = 33; // androidx.test.uiautomator.By.hasChild
