@@ -17,10 +17,11 @@ message FindElementRequest {
   bool is_strict = 13;
 }
 message FindElementResponse {
-  oneof object {
-    io.appium.multiplatform.model.UiObject uiobject = 1;
-    io.appium.multiplatform.model.UiObject2 uiobject2 = 2;
+  oneof element {
+    io.appium.multiplatform.model.UiObject uiobject = 2;
+    io.appium.multiplatform.model.UiObject2 uiobject2 = 3;
   }
+  string id = 1;
 }
 
 message FindElementResponses {

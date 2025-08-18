@@ -2,6 +2,7 @@ package io.appium.multiplatform
 
 import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.serialization.json.Json
+import org.koin.core.KoinApplication
 
 
 /**
@@ -13,6 +14,9 @@ import kotlinx.serialization.json.Json
 expect fun init()
 
 expect val logger: KLogger
+
+
+expect fun initKoin():KoinApplication
 val defaultJson: Json = Json {
     prettyPrint = true
     isLenient = false

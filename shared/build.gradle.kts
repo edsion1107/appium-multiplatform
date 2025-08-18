@@ -1,3 +1,8 @@
+buildscript {
+    dependencies {
+        classpath(libs.wiregrpcserver.generator)
+    }
+}
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.wire)
@@ -40,10 +45,12 @@ wire{
         javaInterop = false
         buildersOnly = false
         emitDeclaredOptions = false
+        boxOneOfsMinSize = 2
         rpcCallStyle = "suspending"
         rpcRole = "server"
         singleMethodServices = false
     }
+
 }
 
 
