@@ -1,8 +1,0 @@
-package io.appium.multiplatform.server.plugins
-
-import io.ktor.server.application.*
-import io.ktor.server.resources.*
-
-fun Application.configureResources() {
-    install(Resources)
-}
