@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
     alias(libs.plugins.ktx.serialization)
-//    alias(libs.plugins.ksp)
     alias(libs.plugins.ktx.atomicfu)
     id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
     id("AndroidConventionPlugin")
@@ -34,10 +33,8 @@ kotlin {
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.micrometer.registry.prometheus)
                 implementation(libs.koin.ktor)
-                api(libs.koin.annotations)
                 implementation("org.jetbrains.kotlinx:kotlinx-rpc-grpc-ktor-server:0.10.0-grpc-122")
             }
-            kotlin.srcDir("${layout.buildDirectory}/generated/ksp/metadata/commonMain/kotlin")
         }
         commonTest {
             dependencies {
