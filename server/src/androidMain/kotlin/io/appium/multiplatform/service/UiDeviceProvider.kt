@@ -5,15 +5,13 @@ import android.app.IInstrumentationWatcher
 import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import io.appium.multiplatform.jvm.ReflectiveMethod
+import io.appium.multiplatform.util.HiddenApi
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.lsposed.hiddenapibypass.HiddenApiBypass
-import org.lsposed.hiddenapibypass.LSPass
 
 @SuppressLint("PrivateApi")
 object UiDeviceProvider {
@@ -25,44 +23,18 @@ object UiDeviceProvider {
     const val UI_AUTOMATION_CONNECTION_CLASS = "android.app.UiAutomationConnection"
     const val ACTIVITY_THREAD_CLASS = "android.app.ActivityThread"
     private val logger = KotlinLogging.logger {}
-    val componentName = ComponentName("com.appium.multiplatform.server", "androidx.test.runner.AndroidJUnitRunner")
-    val instrumentation = Instrumentation()
+    private val componentName =
+        ComponentName("com.appium.multiplatform.server", "androidx.test.runner.AndroidJUnitRunner")
+    private val instrumentation = Instrumentation() // use `InstrumentationRegistry.getInstrumentation()`
 
     private val activityThread by lazy {
-        runCatching {
-            LSPass.invoke(Class.forName(ACTIVITY_THREAD_CLASS), null, "systemMain")
-        }.recoverCatching {
-            HiddenApiBypass.invoke(Class.forName(ACTIVITY_THREAD_CLASS), null, "systemMain")
-        }
-            .onFailure {
-                logger.error(it) { "ActivityThread not initialized" }
-            }.getOrThrow()
+        HiddenApi.invoke(ACTIVITY_THREAD_CLASS, null, "systemMain")
     }
     private val systemContext by lazy {
-        runCatching {
-            LSPass.invoke(
-                Class.forName(ACTIVITY_THREAD_CLASS),
-                activityThread,
-                "getSystemContext"
-            ) as Context
-        }.recoverCatching {
-            HiddenApiBypass.invoke(
-                Class.forName(ACTIVITY_THREAD_CLASS),
-                activityThread,
-                "getSystemContext"
-            ) as Context
-        }.onFailure {
-            logger.error(it) { "SystemContext not initialized" }
-        }.getOrThrow()
+        HiddenApi.invoke(ACTIVITY_THREAD_CLASS, activityThread, "getSystemContext") as Context
     }
     private val uiAutomationConnection by lazy {
-        runCatching {
-            LSPass.newInstance(Class.forName(UI_AUTOMATION_CONNECTION_CLASS))
-        }.recoverCatching {
-            HiddenApiBypass.newInstance(Class.forName(UI_AUTOMATION_CONNECTION_CLASS))
-        }.onFailure {
-            logger.error(it) { "uiAutomationConnection not initialized" }
-        }.getOrThrow()
+        HiddenApi.newInstance(UI_AUTOMATION_CONNECTION_CLASS)
     }
 
     private val instrumentationWatcher = object : IInstrumentationWatcher.Stub() {
@@ -104,11 +76,7 @@ object UiDeviceProvider {
         instrumentation.start()
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     fun get(arguments: Bundle = Bundle()): UiDevice {
-        require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-            "HiddenApiBypass needs API 28 or higher."
-        }
         initialize()
         InstrumentationRegistry.registerInstance(instrumentation, arguments)
         return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
