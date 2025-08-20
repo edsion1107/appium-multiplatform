@@ -14,7 +14,7 @@ grpc-stub-kt = "1.4.3"
 google-common-proto = "2.60.0"
 protovalidate = "1.0.0-rc.4"
 pgv-java-stub = "0.6.13"
-wire = "5.3.10"
+wire = "5.3.11"
 wiregrpcserver = "1.0.0-alpha04"
 koin = "4.1.0"
 koin-annotations = "2.1.0"
@@ -73,6 +73,7 @@ grpc-protobuf = { module = "io.grpc:grpc-protobuf" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-stub-kt" }
 google-common-protos = { module = "com.google.api.grpc:proto-google-common-protos", version.ref = "google-common-proto" }
 wiregrpcserver-generator = { module = "com.squareup.wiregrpcserver:server-generator", version.ref = "wiregrpcserver" }
+wiregrpcserver = { module = "com.squareup.wiregrpcserver:server", version.ref = "wiregrpcserver" }
 protovalidate = { module = "build.buf:protovalidate", version.ref = "protovalidate" }
 pgv-java-stub = { module = "io.envoyproxy.protoc-gen-validate:pgv-java-stub", version.ref = "pgv-java-stub" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }

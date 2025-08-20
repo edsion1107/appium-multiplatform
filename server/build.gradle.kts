@@ -33,6 +33,7 @@ kotlin {
                 implementation(libs.bundles.ktor.server)
                 implementation(libs.micrometer.registry.prometheus)
                 implementation(libs.koin.ktor)
+                implementation(libs.wiregrpcserver)
                 implementation("org.jetbrains.kotlinx:kotlinx-rpc-grpc-ktor-server:0.10.0-grpc-122")
             }
         }
