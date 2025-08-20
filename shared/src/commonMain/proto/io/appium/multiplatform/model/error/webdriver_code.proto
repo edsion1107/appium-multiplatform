@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package io.appium.multiplatform.model.error;
+
+enum WebDriverErrorCode {
+  // Reserved historical values
+  //  reserved 0 to 6;
+
+  // Historical / deprecated enum values
+  WD_SUCCESS = 0 [deprecated = true]; // Deprecated: Success placeholder
+  WD_NO_ERROR = 1 [deprecated = true]; // Deprecated: No error
+  WD_ELEMENT_NOT_VISIBLE = 2 [deprecated = true]; // Deprecated: Element not visible
+  WD_INVALID_COOKIE_DOMAIN_OLD = 3 [deprecated = true]; // Deprecated: Old invalid cookie domain
+  WD_INVALID_SELECTOR_OLD = 4 [deprecated = true]; // Deprecated: Old invalid selector
+  WD_NO_SUCH_ELEMENT_OLD = 5 [deprecated = true]; // Deprecated: Old no such element
+  WD_NO_SUCH_FRAME_OLD = 6 [deprecated = true]; // Deprecated: Old no such frame
+
+  // Modern WebDriver error codes with detailed description and HTTP mapping
+  // 400 Bad Request
+  // The Element Click command could not be completed because the element receiving the events is obscuring the element that was requested clicked.
+  // HTTP Mapping: 400 Bad Request
+  WD_ELEMENT_CLICK_INTERCEPTED = 7;
+
+  // 400 Bad Request
+  // A command could not be completed because the element is not pointer- or keyboard interactable.
+  // HTTP Mapping: 400 Bad Request
+  WD_ELEMENT_NOT_INTERACTABLE = 8;
+
+  // 400 Bad Request
+  // Navigation caused the user agent to hit a certificate warning, which is usually the result of an expired or invalid TLS certificate.
+  // HTTP Mapping: 400 Bad Request
+  WD_INSECURE_CERTIFICATE = 9;
+
+  // 400 Bad Request
+  // The arguments passed to a command are either invalid or malformed.
+  // HTTP Mapping: 400 Bad Request
+  WD_INVALID_ARGUMENT = 10;
+
+  // 400 Bad Request
+  // An illegal attempt was made to set a cookie under a different domain than the current page.
+  // HTTP Mapping: 400 Bad Request
+  WD_INVALID_COOKIE_DOMAIN = 11;
+
+  // 400 Bad Request
+  // A command could not be completed because the element is in an invalid state, e.g., attempting to clear an element that isn't both editable and resettable.
+  // HTTP Mapping: 400 Bad Request
+  WD_INVALID_ELEMENT_STATE = 12;
+
+  // 400 Bad Request
+  // Argument was an invalid selector.
+  // HTTP Mapping: 400 Bad Request
+  WD_INVALID_SELECTOR = 13;
+
+  // 404 Not Found
+  // Occurs if the given session id is not in the list of active sessions, meaning the session either does not exist or that it's not active.
+  // HTTP Mapping: 404 Not Found
+  WD_INVALID_SESSION_ID = 14;
+
+  // 500 Internal Server Error
+  // An error occurred while executing JavaScript supplied by the user.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_JAVASCRIPT_ERROR = 15;
+
+  // 500 Internal Server Error
+  // The target for mouse interaction is not in the browser's viewport and cannot be brought into that viewport.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_MOVE_TARGET_OUT_OF_BOUNDS = 16;
+
+  // 404 Not Found
+  // An attempt was made to operate on a modal dialog when one was not open.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_ALERT = 17;
+
+  // 404 Not Found
+  // No cookie matching the given path name was found amongst the associated cookies of session's current browsing context's active document.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_COOKIE = 18;
+
+  // 404 Not Found
+  // An element could not be located on the page using the given search parameters.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_ELEMENT = 19;
+
+  // 404 Not Found
+  // A command to switch to a frame could not be satisfied because the frame could not be found.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_FRAME = 20;
+
+  // 404 Not Found
+  // A command to switch to a window could not be satisfied because the window could not be found.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_WINDOW = 21;
+
+  // 404 Not Found
+  // The element does not have a shadow root.
+  // HTTP Mapping: 404 Not Found
+  WD_NO_SUCH_SHADOW_ROOT = 22;
+
+  // 500 Internal Server Error
+  // A script did not complete before its timeout expired.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_SCRIPT_TIMEOUT = 23;
+
+  // 500 Internal Server Error
+  // A new session could not be created.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_SESSION_NOT_CREATED = 24;
+
+  // 404 Not Found
+  // A command failed because the referenced element is no longer attached to the DOM.
+  // HTTP Mapping: 404 Not Found
+  WD_STALE_ELEMENT_REFERENCE = 25;
+
+  // 404 Not Found
+  // A command failed because the referenced shadow root is no longer attached to the DOM.
+  // HTTP Mapping: 404 Not Found
+  WD_DETACHED_SHADOW_ROOT = 26;
+
+  // 500 Internal Server Error
+  // An operation did not complete before its timeout expired.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_TIMEOUT = 27;
+
+  // 500 Internal Server Error
+  // A command to set a cookie's value could not be satisfied.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_UNABLE_TO_SET_COOKIE = 28;
+
+  // 500 Internal Server Error
+  // A screen capture was made impossible.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_UNABLE_TO_CAPTURE_SCREEN = 29;
+
+  // 500 Internal Server Error
+  // A modal dialog was open, blocking this operation.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_UNEXPECTED_ALERT_OPEN = 30;
+
+  // 404 Not Found
+  // A command could not be executed because the driver was unaware of it.
+  // HTTP Mapping: 404 Not Found
+  WD_UNKNOWN_COMMAND = 31;
+
+  // 500 Internal Server Error
+  // An unknown error occurred in the driver whilst processing the command.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_UNKNOWN_ERROR = 32;
+
+  // 405 Method Not Allowed
+  // The requested command matched a known URL but did not match a method for that URL.
+  // HTTP Mapping: 405 Method Not Allowed
+  WD_UNKNOWN_METHOD = 33;
+
+  // 500 Internal Server Error
+  // Indicates that a command that should have executed properly cannot be supported for some reason.
+  // HTTP Mapping: 500 Internal Server Error
+  WD_UNSUPPORTED_OPERATION = 34;
+}

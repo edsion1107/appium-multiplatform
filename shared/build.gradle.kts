@@ -12,11 +12,11 @@ plugins {
 group = "io.appium.multiplatform"
 version = "unspecified"
 
-kotlin{
+kotlin {
     jvm()
 
     sourceSets {
-        commonMain{
+        commonMain {
             dependencies {
                 implementation(project.dependencies.enforcedPlatform(projects.platform))
                 api(libs.kotlin.logging)
@@ -24,12 +24,12 @@ kotlin{
                 api(libs.ktx.serialization.json)
             }
         }
-        jvmMain{
+        jvmMain {
 //            kotlin.srcDirs(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/kotlin"))
         }
     }
 }
-wire{
+wire {
     protoLibrary = true
     protoPath {
         srcJar {
@@ -38,9 +38,9 @@ wire{
     }
     protoPath {
         srcJar { libs.google.common.protos }
-        include("google/api/annotations.proto","google/api/http.proto")
+        include("google/api/annotations.proto", "google/api/http.proto")
     }
-    kotlin{
+    kotlin {
         android = false
         javaInterop = false
         buildersOnly = false
@@ -64,10 +64,11 @@ wire{
 buf {
     // 理论上是 protobuf 都是一致的，实现上的不同应该没有影响
     // wire 不支持 python、nodejs 等语言，所以 buf 生成客户端代码
+    // buf 还支持 lint 和 format
     publishSchema = false
     enforceFormat = true
     build { }
-    generate{
+    generate {
         includeImports = false
     }
 }

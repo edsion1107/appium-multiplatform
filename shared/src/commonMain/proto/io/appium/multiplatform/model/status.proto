@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package io.appium.multiplatform.model;
+
+import "google/protobuf/any.proto";
+import "io/appium/multiplatform/model/error/http_status_code.proto";
+import "io/appium/multiplatform/model/error/rpc_code.proto";
+import "io/appium/multiplatform/model/error/webdriver_code.proto";
+
+// The `Status` type defines a logical error model that is suitable for
+// different programming environments, including REST APIs and RPC APIs. It is
+// used by [gRPC](https://github.com/grpc). Each `Status` message contains
+// three pieces of data: error code, error message, and error details.
+//
+// You can find out more about this error model and how to work with it in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
+message Status {
+  // The status code, which should be an enum value of
+  // [google.rpc.Code][google.rpc.Code].
+  oneof code {
+    io.appium.multiplatform.model.error.HttpStatusCode http_status_code = 1;
+    io.appium.multiplatform.model.error.RpcCode rpc_code = 2;
+    io.appium.multiplatform.model.error.WebDriverErrorCode webdriver_error_code = 3;
+  }
+
+  // A developer-facing error message, which should be in English. Any
+  // user-facing error message should be localized and sent in the
+  // [google.rpc.Status.details][google.rpc.Status.details] field, or localized
+  // by the client.
+  string message = 11;
+
+  // A list of messages that carry the error details.  There is a common set of
+  // message types for APIs to use.
+    repeated google.protobuf.Any details = 21;
+}
