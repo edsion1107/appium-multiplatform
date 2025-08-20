@@ -18,5 +18,5 @@ val platformInfo: PlatformInfo by lazy {
         version = System.getProperty("os.version")
     )
 }
-actual val status: Status
-    get() = Status(build = buildInfo, platform = platformInfo, ready = false)
+actual val state: State
+    get() = State(build = buildInfo, platform = platformInfo, ready = false)

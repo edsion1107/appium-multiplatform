@@ -20,5 +20,5 @@ actual val buildInfo: BuildInfo by lazy {
 val platform: PlatformInfo by lazy {
     PlatformInfo(arch = Build.SUPPORTED_ABIS.joinToString(","), name = "Android", version = Build.VERSION.RELEASE)
 }
-actual val status: Status
-    get() = Status(build = buildInfo, platform = platform, ready = false)
+actual val state: State
+    get() = State(build = buildInfo, platform = platform, ready = false)
