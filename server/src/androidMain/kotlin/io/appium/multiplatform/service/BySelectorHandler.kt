@@ -6,15 +6,11 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import com.appium.multiplatform.server.BuildConfig
 import com.squareup.wire.OneOf
-import io.appium.multiplatform.model.BySelector
-import io.appium.multiplatform.model.StatusException
+import io.appium.multiplatform.model.*
 import io.appium.multiplatform.model.StatusException.Companion.buildWebdriverException
-import io.appium.multiplatform.model.UiObject2
 import io.appium.multiplatform.model.error.WebDriverErrorCode
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.regex.Pattern
-import androidx.test.uiautomator.BySelector as _BySelector
-import androidx.test.uiautomator.UiObject2 as _UiObject2
 
 class BySelectorHandler(
     val uiDevice: UiDevice,
@@ -36,7 +32,7 @@ class BySelectorHandler(
             {
                 put("uiDevice", uiDevice)
                 put("selector<${BySelector::class.qualifiedName}>", selector)
-                put("by(${_BySelector::class.qualifiedName})", by)
+                put("by(${androidx.test.uiautomator.BySelector::class.qualifiedName})", by)
             }
         } else {
             return object2.toUiObject2()
@@ -48,9 +44,9 @@ class BySelectorHandler(
     }
 
     @SuppressLint("ObsoleteSdkInt")
-    private fun BySelector.toBySelector(): _BySelector {
+    private fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
 
-        var by: _BySelector? = null
+        var by: androidx.test.uiautomator.BySelector? = null
         clazz?.let { by = by?.clazz(it) ?: By.clazz(it) }
         desc?.let { by = by?.desc(it) ?: By.desc(it) }
         pkg?.let { by = by?.pkg(it) ?: By.pkg(it) }
@@ -117,10 +113,38 @@ class BySelectorHandler(
         return by!!
     }
 
-    private fun _UiObject2.toUiObject2(): UiObject2 {
-        TODO("Not yet implemented")
-        return UiObject2(class_name = this.className)
-    }
+    private fun android.graphics.Rect.toRect() = Rect(
+        left = this.left,
+        top = this.top,
+        right = this.right,
+        bottom = this.bottom,
+    )
 
+    private fun android.graphics.Point.toPoint() = Point(
+        x = this.x,
+        y = this.y
+    )
 
+    private fun androidx.test.uiautomator.UiObject2.toUiObject2() = UiObject2(
+        class_name = this.className,
+        content_description = this.contentDescription,
+        application_package = this.applicationPackage,
+        resource_name = this.resourceName,
+        text = this.text,
+        is_checkable = this.isCheckable,
+        is_checked = this.isChecked,
+        is_clickable = this.isClickable,
+        is_enabled = this.isEnabled,
+        is_focusable = this.isFocusable,
+        is_focused = this.isFocused,
+        is_long_clickable = this.isLongClickable,
+        is_scrollable = this.isScrollable,
+        is_selected = this.isSelected,
+        display_id = this.displayId,
+        hint = this.hint,
+        visible_bounds = this.visibleBounds.toRect(),
+        visible_center = this.visibleCenter.toPoint(),
+        drawing_order = this.drawingOrder,
+//                child_count = this.childCount,
+    )
 }
