@@ -1,32 +1,36 @@
 package io.appium.multiplatform.server.plugins
 
+
 import io.appium.multiplatform.defaultJson
-import io.ktor.http.ContentType
-import io.ktor.http.content.OutgoingContent
-import io.ktor.serialization.ContentConverter
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.requestvalidation.RequestValidation
-import io.ktor.server.resources.Resources
-import io.ktor.util.reflect.TypeInfo
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.charsets.Charset
+import io.appium.multiplatform.model.ProtobufConverter
+
+import io.ktor.http.*
+
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.requestvalidation.*
+import io.ktor.server.resources.*
+
+
 
 suspend fun Application.configureContentNegotiation() {
     install(ContentNegotiation) {
         json(defaultJson)
+        register(ContentType.Application.ProtoBuf, ProtobufConverter())
     }
 }
+
 suspend fun Application.configureRequestValidation() {
     install(RequestValidation) {
     }
 }
+
 suspend fun Application.configureResources() {
     install(Resources)
 }
+
 suspend fun Application.configureCallLogging() {
     install(CallLogging) {
         disableDefaultColors() // jansi not support android .
@@ -37,29 +41,10 @@ suspend fun Application.configureCallLogging() {
         // sample: log.toKLogger().info { "Hello World" } or io.appium.multiplatform.logger.debug { "Hello World" }
     }
 }
+
 suspend fun Application.requiredPlugins() {
     configureContentNegotiation()
     configureRequestValidation()
     configureResources()
     configureCallLogging()
-}
-
-class ProtobufConverter(): ContentConverter {
-    override suspend fun serialize(
-        contentType: ContentType,
-        charset: Charset,
-        typeInfo: TypeInfo,
-        value: Any?
-    ): OutgoingContent? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deserialize(
-        charset: Charset,
-        typeInfo: TypeInfo,
-        content: ByteReadChannel
-    ): Any? {
-        TODO("Not yet implemented")
-    }
-
 }
