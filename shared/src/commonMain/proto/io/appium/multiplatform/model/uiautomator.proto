@@ -130,7 +130,7 @@ message UiObject2 {
   optional uint32 display_id = 16;
 
   // RequiresApi 26
-  optional uint32 hint = 17;
+  optional string hint = 17;
   optional Rect visible_bounds = 18;
   optional Point visible_center = 19;
 
