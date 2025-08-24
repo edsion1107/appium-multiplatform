@@ -2,7 +2,7 @@ package io.appium.multiplatform.server.plugins
 
 
 import io.appium.multiplatform.defaultJson
-import io.appium.multiplatform.model.ProtobufConverter
+import io.appium.multiplatform.model.WireConverter
 
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -18,7 +18,7 @@ suspend fun Application.configureContentNegotiation() {
         checkAcceptHeaderCompliance = true
         // The order of registered ContentConverters affects the matching logic.
         // If KotlinxSerializationConverter is placed first, it will be selected with higher priority during checks.
-        register(ContentType.Application.ProtoBuf, ProtobufConverter())
+        register(ContentType.Application.ProtoBuf, WireConverter())
         json(defaultJson)
     }
 }

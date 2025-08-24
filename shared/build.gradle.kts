@@ -19,6 +19,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project.dependencies.enforcedPlatform(projects.platform))
+                api(kotlin("reflect"))
+                api(libs.bundles.ktor.shared)
                 api(libs.kotlin.logging)
                 api(libs.ktx.datetime)
                 api(libs.ktx.serialization.json)
