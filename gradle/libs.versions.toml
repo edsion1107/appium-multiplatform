@@ -18,7 +18,7 @@ wire = "5.3.11"
 wiregrpcserver = "1.0.0-alpha04"
 koin = "4.1.0"
 koin-annotations = "2.1.0"
-kotest = "5.9.1"
+kotest = "6.0.0"
 kotlin-logging = "7.0.7"
 monitor = "1.7.2"
 atomicfu = "0.28.0"
@@ -52,6 +52,10 @@ ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty" }  # not support android
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation" }
+ktor-http = { module = "io.ktor:ktor-http" }
+ktor-io = { module = "io.ktor:ktor-io" }
+ktor-utils = { module = "io.ktor:ktor-utils" }
+ktor-serialization = { module = "io.ktor:ktor-serialization" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources" }
 ktor-server-auto-head-response = { module = "io.ktor:ktor-server-auto-head-response" }
@@ -65,7 +69,12 @@ ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host" }
+ktor-server-test-host-jvm = { module = "io.ktor:ktor-server-test-host-jvm" }
 ktor-server-di = { module = "io.ktor:ktor-server-di" }
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging" }
 grpc-core = { module = "io.grpc:grpc-core" }
 grpc-okhttp = { module = "io.grpc:grpc-okhttp" }
 grpc-stub = { module = "io.grpc:grpc-stub" }
@@ -86,6 +95,11 @@ ktx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref 
 ktx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
+kotest-extensions-koin = { module = "io.kotest:kotest-extensions-koin" }
+kotest-extensions-koin-jvm = { module = "io.kotest:kotest-extensions-koin-jvm" }
+kotest-assertions-ktor = { module = "io.kotest:kotest-assertions-ktor" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
@@ -121,6 +135,8 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
     "ktor-server-compression", "ktor-server-conditional-headers", "ktor-server-cors", "ktor-server-forwarded-header",
     "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation", "ktor-server-di"]
 grpc-server = ["grpc-core", "grpc-okhttp"]
+ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-logging"]
+ktor-shared =["ktor-serialization","ktor-utils","ktor-http","ktor-io"]
 protovalidate = ["protovalidate", "pgv-java-stub"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
@@ -132,6 +148,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotest = { id = "io.kotest", version.ref = "kotest" }
 ktx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 # Single variant architecture & Tests disabled by default, `androidLibrary` is marked unstable
 # https://developer.android.com/kotlin/multiplatform/plugin?hl=zh-cn#features
@@ -143,3 +160,4 @@ protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 buf = { id = "build.buf", version.ref = "buf" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }
+power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
