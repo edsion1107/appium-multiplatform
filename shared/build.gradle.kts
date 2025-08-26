@@ -14,7 +14,7 @@ group = "io.appium.multiplatform"
 version = "unspecified"
 
 kotlin {
-    jvm()
+    jvm() // at least one Kotlin target
 
     sourceSets {
         commonMain {
@@ -26,14 +26,6 @@ kotlin {
                 api(libs.ktx.datetime)
                 api(libs.ktx.serialization.json)
                 api(libs.cache4k)
-            }
-        }
-        // shared code for submodule `:server` and `:client`(`:jvmShard` for :server android and jvm)
-        jvmMain {
-            dependencies{
-                implementation(projects.jvmShared)
-                api(libs.protobuf.kotlin)
-                api(libs.protobuf.java.util)
             }
         }
     }

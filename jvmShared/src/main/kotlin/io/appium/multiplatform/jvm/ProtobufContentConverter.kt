@@ -1,7 +1,6 @@
-package io.appium.multiplatform.model
+package io.appium.multiplatform.jvm
 
 import com.google.protobuf.Message
-import io.appium.multiplatform.jvm.ReflectiveMethod
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.reactivecircus.cache4k.Cache
 import io.ktor.http.*

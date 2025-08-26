@@ -5,9 +5,11 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotest)
     alias(libs.plugins.android.application)
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.ktx.atomicfu)
+    alias(libs.plugins.ksp)
     id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
     id("AndroidConventionPlugin")
     id("AppRuntimePlugin")
@@ -82,10 +84,8 @@ android {
     }
 }
 
-// dependencies for variant, make output smaller
-dependencies {
-    //TODO: add ktor plugins
-//    debugRuntimeOnly("io.github.smiley4:ktor-swagger-ui:5.1.0")
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 appRuntime {

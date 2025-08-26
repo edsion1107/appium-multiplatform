@@ -38,7 +38,6 @@ protobuf-plugin = "0.9.5"
 buf = "0.10.3"
 zipline = "1.22.0"
 cache4k = "0.14.0"
-allure-gradle = "2.12.0"
 
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -144,7 +143,7 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
 grpc-server = ["grpc-core", "grpc-okhttp"]
 ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-logging", "ktor-client-content-negotiation",
     "ktor-serialization-kotlinx-json", "ktor-client-resources"]
-ktor-shared = ["ktor-serialization", "ktor-utils", "ktor-http", "ktor-io","ktor-resources"]
+ktor-shared = ["ktor-serialization", "ktor-utils", "ktor-http", "ktor-io", "ktor-resources"]
 protovalidate = ["protovalidate", "pgv-java-stub"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
@@ -169,4 +168,3 @@ buf = { id = "build.buf", version.ref = "buf" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }
 power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
-allure = { id = "io.qameta.allure", version.ref = "allure-gradle" }

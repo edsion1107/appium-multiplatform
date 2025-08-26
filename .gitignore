@@ -610,3 +610,4 @@ mise.toml
 mise.local.toml
 /.kotlin/
 /keystore.properties
+allure-results
