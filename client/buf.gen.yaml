@@ -1,0 +1,25 @@
+version: v2
+clean: true
+managed:
+  enabled: true
+  disable:
+    - file_option: java_package
+#      module: buf.build/bufbuild/protovalidate
+  override:
+    - file_option: java_package_prefix
+      value: ""
+plugins:
+  - remote: buf.build/protocolbuffers/java:v31.1
+    out: java
+  - remote: buf.build/bufbuild/validate-java:v1.2.1
+    out: java
+  - remote: buf.build/grpc/java:v1.74.0
+    out: java
+  - remote: buf.build/protocolbuffers/kotlin:v31.1
+    out: kotlin
+    # protovalidate不支持kotlin，所以必须生成java代码，生成的kotlin代码就显得不会用到，但是可以在测试期间用kotlin的dsl来简化测试。
+  - remote: buf.build/grpc/kotlin:v1.4.3
+    out: kotlin
+inputs:
+  - directory: ../shared/src/commonMain/proto
+

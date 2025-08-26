@@ -1,4 +1,4 @@
-pluginManagement{
+pluginManagement {
     includeBuild("build-logic")
 }
 
@@ -12,4 +12,4 @@ include(":platform")
 include(":shared")
 include(":jvmShared")
 include(":server")
-
+include(":client")

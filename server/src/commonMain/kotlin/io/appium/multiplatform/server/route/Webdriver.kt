@@ -12,7 +12,6 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.reflect.*
 import io.ktor.utils.io.*
 import org.koin.ktor.ext.inject
 
@@ -21,7 +20,7 @@ import org.koin.ktor.ext.inject
 fun Routing.webdriverRoutes() {
     val webdriverServiceServer: WebdriverServiceServer by inject()
     get<StatusRequest> { req ->
-        call.respond(state, typeInfo<io.appium.multiplatform.model.State>())
+        call.respond(state)
     }
     post<ElementRequest> { req ->
         if (call.request.contentType() == ContentType.Application.ProtoBuf) {
