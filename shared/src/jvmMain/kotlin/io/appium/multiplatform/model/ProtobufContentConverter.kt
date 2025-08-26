@@ -26,20 +26,19 @@ class ProtobufContentConverter : ContentConverter {
         value: Any?
     ): OutgoingContent? {
         if (!isProtobuf(typeInfo)) {
-            throw ProtobufException.Encoding("Protobuf doesn't support protobuf types: $value")
-        } else if (value == null) {
-            throw ProtobufException.Encoding("Encoding produced null for ${typeInfo.type}")
-        } else {
-            val bytes = (value as? Message)?.toByteArray() ?: byteArrayOf()
-            if (bytes.isEmpty()) {
-                throw ProtobufException.Encoding("Encoding produced empty bytes for ${typeInfo.type}")
-            }
-            return ByteArrayContent(
-                bytes = bytes,
-                contentType = ContentType.Application.ProtoBuf
-            )
+            return null
         }
+        val bytes = (value as? Message)?.toByteArray()
+            ?: throw ProtobufException.Encoding("Protobuf doesn't support protobuf types: $value")
+        if (bytes.isEmpty()) {
+            throw ProtobufException.Encoding("Encoding produced empty bytes for ${typeInfo.type}")
+        }
+        return ByteArrayContent(
+            bytes = bytes,
+            contentType = ContentType.Application.ProtoBuf
+        )
     }
+
 
     override suspend fun deserialize(
         charset: Charset,
@@ -47,7 +46,7 @@ class ProtobufContentConverter : ContentConverter {
         content: ByteReadChannel
     ): Any? {
         if (!isProtobuf(typeInfo)) {
-            throw ProtobufException.Decoding("Protobuf doesn't support protobuf types: $typeInfo")
+            return null
         }
         val bytes = withContext(Dispatchers.IO) { content.readRemaining().readByteArray() }
         if (bytes.isEmpty()) {

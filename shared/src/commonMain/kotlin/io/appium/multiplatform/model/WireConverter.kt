@@ -31,7 +31,10 @@ class WireConverter : ContentConverter {
         charset: Charset,
         typeInfo: TypeInfo,
         value: Any?
-    ): OutgoingContent {
+    ): OutgoingContent? {
+        if (!typeInfo.isWireMessage()){
+            return null
+        }
         val message = value as? Message<*, *>
             ?: throw WireException.Encoding(
                 "Unsupported type for serialization: $typeInfo"
@@ -56,7 +59,10 @@ class WireConverter : ContentConverter {
         charset: Charset,
         typeInfo: TypeInfo,
         content: ByteReadChannel
-    ): Any {
+    ): Any? {
+        if (!typeInfo.isWireMessage()){
+            return null
+        }
         return try {
             val bytes = withContext(Dispatchers.IO) { content.readRemaining().readByteArray() }
             if (bytes.isEmpty()) {
@@ -76,7 +82,7 @@ class WireConverter : ContentConverter {
      */
     @Suppress("UNCHECKED_CAST")
     suspend fun TypeInfo.getAdapter(): ProtoAdapter<Message<*, *>> {
-        if (!this.isWireMessage()) {
+        if (!isWireMessage()) {
             throw WireException.AdapterNotFound("Type $this is not a Wire Message")
         }
         return cache.get(this) {
