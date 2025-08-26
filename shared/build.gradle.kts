@@ -24,11 +24,22 @@ kotlin {
                 api(libs.kotlin.logging)
                 api(libs.ktx.datetime)
                 api(libs.ktx.serialization.json)
+                api(libs.cache4k)
             }
         }
         jvmMain {
+            dependencies{
+                api(libs.protobuf.kotlin)
+                api(libs.protobuf.java.util)
+            }
 //            kotlin.srcDirs(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/kotlin"))
         }
+//        androidMain{
+//            dependencies{
+//                api(libs.protobuf.kotlin.lite)
+////                api(libs.protobuf.java.util)
+//            }
+//        }
     }
 }
 wire {
