@@ -1,7 +1,7 @@
 package io.appium.multiplatform.model
 
 /**
- * 为了测试设计的
+ * for testing
  */
 fun BySelector.toUiObject2() = UiObject2(
     class_name = clazz ?: clazz_pattern?.text,

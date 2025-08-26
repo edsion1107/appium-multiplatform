@@ -2,14 +2,11 @@ package io.appium.multiplatform.server
 
 import io.appium.multiplatform.init
 import io.appium.multiplatform.initKoin
-import io.appium.multiplatform.model.BySelector
-import io.appium.multiplatform.server.plugins.requiredPlugins
 import io.appium.multiplatform.server.routes.webdriverRoutes
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.rpc.grpc.ktor.server.grpc
 
 
 @Suppress("unused")
@@ -26,11 +23,9 @@ fun main(args: Array<String>) {
 }
 
 
-suspend fun Application.module() {
-   log.info("host: ${environment.config.host}, port: ${environment.config.port}, startupMode: ${environment.startupMode}, startupTimeout: ${environment.startupTimeout}, classLoader: ${environment.classLoader}")
-    requiredPlugins()
-//    performancePlugins()
-//    commonPlugins()
+fun Application.module() {
+    log.info("host: ${environment.config.host}, port: ${environment.config.port}, startupMode: ${environment.startupMode}, startupTimeout: ${environment.startupTimeout}, classLoader: ${environment.classLoader}")
+    configureResources()
     routing {
         get("/") {
             call.respondText("Hello, world!")

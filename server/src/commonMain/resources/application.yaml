@@ -5,3 +5,15 @@ ktor:
     startup: concurrent
     modules:
       - io.appium.multiplatform.server.ApplicationKt.module
+      - io.appium.multiplatform.server.PluginKt.configureContentNegotiation
+      - io.appium.multiplatform.server.PluginKt.configureRequestValidation
+      - io.appium.multiplatform.server.PluginKt.configureCallLogging
+      - io.appium.multiplatform.server.PluginKt.configureAutoHeadResponse
+      - io.appium.multiplatform.server.PluginKt.configureCORS
+      - io.appium.multiplatform.server.PluginKt.configureDefaultHeaders
+      - io.appium.multiplatform.server.PluginKt.configureForwardedHeaders
+      - io.appium.multiplatform.server.PluginKt.configureMicrometerMetrics
+      - io.appium.multiplatform.server.PluginKt.configureCachingHeaders
+      - io.appium.multiplatform.server.PluginKt.configureCompression
+      - io.appium.multiplatform.server.PluginKt.configureConditionalHeaders
+      - io.appium.multiplatform.server.PluginKt.configurePartialContent
