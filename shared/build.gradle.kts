@@ -28,19 +28,14 @@ kotlin {
                 api(libs.cache4k)
             }
         }
+        // shared code for submodule `:server` and `:client`(`:jvmShard` for :server android and jvm)
         jvmMain {
             dependencies{
+                implementation(projects.jvmShared)
                 api(libs.protobuf.kotlin)
                 api(libs.protobuf.java.util)
             }
-//            kotlin.srcDirs(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/kotlin"))
         }
-//        androidMain{
-//            dependencies{
-//                api(libs.protobuf.kotlin.lite)
-////                api(libs.protobuf.java.util)
-//            }
-//        }
     }
 }
 wire {

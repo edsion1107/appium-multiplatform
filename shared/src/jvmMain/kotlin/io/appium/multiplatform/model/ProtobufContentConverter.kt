@@ -1,6 +1,7 @@
 package io.appium.multiplatform.model
 
 import com.google.protobuf.Message
+import io.appium.multiplatform.jvm.ReflectiveMethod
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.reactivecircus.cache4k.Cache
 import io.ktor.http.*
@@ -13,12 +14,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
 import kotlinx.serialization.SerializationException
-import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
 class ProtobufContentConverter : ContentConverter {
     private val logger = KotlinLogging.logger {}
-    private val cache = Cache.Builder<TypeInfo, Method>().build()
+
+    // Only the deserialization method `parseFrom` is obtained via reflection and therefore needs to be cached,
+    // while serialization directly uses `com.google.protobuf.MessageLite.toByteArray`.
+    private val cache = Cache.Builder<TypeInfo, ReflectiveMethod<Message>>().build()
     override suspend fun serialize(
         contentType: ContentType,
         charset: Charset,
@@ -50,10 +53,10 @@ class ProtobufContentConverter : ContentConverter {
         }
         val bytes = withContext(Dispatchers.IO) { content.readRemaining().readByteArray() }
         if (bytes.isEmpty()) {
-            throw ProtobufException.Encoding("Empty body received for $typeInfo")
+            throw ProtobufException.Decoding("Empty body received for $typeInfo")
         }
         val parseFrom = cache.get(typeInfo) {
-            typeInfo.type.java.getMethod("parseFrom", ByteArray::class.java)
+            ReflectiveMethod<Message>(typeInfo.type.java, "parseFrom", ByteArray::class.java)
         }
         return parseFrom.invoke(null, bytes)
     }
@@ -71,7 +74,6 @@ class ProtobufContentConverter : ContentConverter {
             SerializationException(message, cause) {
             class Decoding(message: String?, cause: Throwable? = null) : ProtobufException(message, cause)
             class Encoding(message: String?, cause: Throwable? = null) : ProtobufException(message, cause)
-            class AdapterNotFound(message: String?, cause: Throwable? = null) : ProtobufException(message, cause)
         }
     }
 }
