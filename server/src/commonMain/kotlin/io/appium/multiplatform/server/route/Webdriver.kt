@@ -1,11 +1,9 @@
-package io.appium.multiplatform.server.routes
+package io.appium.multiplatform.server.route
 
-import com.squareup.wire.OneOf
-import io.appium.multiplatform.logger
-import io.appium.multiplatform.model.BySelector
+
 import io.appium.multiplatform.model.state
-import io.appium.multiplatform.protocol.webdriver.ElementRequest
-import io.appium.multiplatform.protocol.webdriver.StatusRequest
+import io.appium.multiplatform.request.ElementRequest
+import io.appium.multiplatform.request.StatusRequest
 import io.appium.multiplatform.service.FindElementRequest
 import io.appium.multiplatform.service.WebdriverServiceServer
 import io.ktor.http.*
@@ -14,7 +12,7 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.reflect.typeInfo
+import io.ktor.util.reflect.*
 import io.ktor.utils.io.*
 import org.koin.ktor.ext.inject
 

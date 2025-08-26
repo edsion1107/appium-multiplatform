@@ -5,6 +5,7 @@ buildscript {
 }
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.wire)
     alias(libs.plugins.buf)
 }

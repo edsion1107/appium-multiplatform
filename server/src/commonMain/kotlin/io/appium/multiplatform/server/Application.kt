@@ -2,7 +2,7 @@ package io.appium.multiplatform.server
 
 import io.appium.multiplatform.init
 import io.appium.multiplatform.initKoin
-import io.appium.multiplatform.server.routes.webdriverRoutes
+import io.appium.multiplatform.server.route.webdriverRoutes
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.response.*
