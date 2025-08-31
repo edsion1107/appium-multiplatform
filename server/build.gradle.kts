@@ -21,8 +21,7 @@ version = "unspecified"
 
 kotlin {
     androidTarget()
-//    iosArm64()
-    jvm{
+    jvm {
         mainRun {
             mainClass.set("io.appium.multiplatform.server.ApplicationKt")
         }
@@ -39,12 +38,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-rpc-grpc-ktor-server:0.10.0-grpc-122")
             }
         }
-        commonTest {
-            dependencies {
-
-            }
-        }
-
         androidMain {
             dependencies {
                 implementation(projects.jvmShared)
@@ -52,6 +45,7 @@ kotlin {
                 implementation(libs.hiddenapibypass)
                 implementation(libs.koin.android)
                 implementation(libs.bundles.androidx.test)
+//                implementation(libs.bundles.grpc.server)
             }
         }
         androidInstrumentedTest {
@@ -69,8 +63,9 @@ kotlin {
         }
     }
     compilerOptions {
-//        extraWarnings.set(true)   // TODO: wire plugin not support, waiting for a fix
+        extraWarnings.set(true)   // TODO: wire plugin not support, waiting for a fix
         optIn.add("kotlin.time.ExperimentalTime")
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }

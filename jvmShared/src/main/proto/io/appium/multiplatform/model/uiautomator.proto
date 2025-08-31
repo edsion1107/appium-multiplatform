@@ -89,6 +89,11 @@ message UiSelector {
   optional bool selected = 14; // androidx.test.uiautomator.UiSelector.selected
   optional uint32 index = 15 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.UiSelector.index
   optional uint32 instance = 16 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.UiSelector.instance
+  optional RegexPattern class_name_matches = 19; // androidx.test.uiautomator.UiSelector.classNameMatches
+  optional RegexPattern description_matches = 20; // androidx.test.uiautomator.UiSelector.descriptionMatches
+  optional RegexPattern package_name_matches = 21; // androidx.test.uiautomator.UiSelector.packageNameMatches
+  optional RegexPattern resource_id_matches = 22; // androidx.test.uiautomator.UiSelector.resourceIdMatches
+  optional RegexPattern text_matches = 23; // androidx.test.uiautomator.UiSelector.textMatches
   optional UiSelector selector = 31; // androidx.test.uiautomator.UiSelector.UiSelector(androidx.test.uiautomator.UiSelector)
   optional UiSelector child_selector = 32; // androidx.test.uiautomator.UiSelector.childSelector
   optional UiSelector from_parent = 33; // androidx.test.uiautomator.UiSelector.fromParent

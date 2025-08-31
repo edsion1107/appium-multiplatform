@@ -5,14 +5,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.buf)
     alias(libs.plugins.kotest)
     alias(libs.plugins.ksp)
 }
 
 group = "io.appium.multiplatform"
 version = "unspecified"
-
+kotlin {
+    compilerOptions {
+        extraWarnings.set(true)   // TODO: wire plugin not support, waiting for a fix
+        optIn.add("kotlin.time.ExperimentalTime")
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
 dependencies {
     // 这是独立于 server 的端到端测试
     // 特点 1：不依赖 server 代码，必须额外启动真实的 Android 或 jvm 的 server，不能用ktor-server-test-host-jvm模拟
@@ -53,28 +59,5 @@ sourceSets {
     }
 
 }
-buf {
-    configFileLocation = rootProject.file("${projects.shared.name}/buf.yaml")
-    // 理论上是 protobuf 都是一致的，实现上的不同应该没有影响
-    // wire 不支持 python、nodejs 等语言，所以 buf 生成客户端代码
-    // buf 还支持 lint 和 format
-    publishSchema = false
-    enforceFormat = true
-    build { }
-    generate {
-        includeImports = false
-        // 注意此处`buf.gen.yaml`要与`shared/buf.gen.yaml`（cli）中插件尽量保持一致（仅inputs等配置有区别）
-        templateFileLocation = layout.projectDirectory.file("buf.gen.yaml").asFile
-    }
 
-}
-val generateTasks = tasks.withType<GenerateTask>()
-
-tasks.withType<KotlinCompile>().configureEach {
-    dependsOn(generateTasks)
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    dependsOn(generateTasks)
-}
 
