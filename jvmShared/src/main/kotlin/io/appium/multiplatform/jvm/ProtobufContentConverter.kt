@@ -1,8 +1,8 @@
 package io.appium.multiplatform.jvm
 
 import com.google.protobuf.Message
+import io.appium.multiplatform.jvm.ReflectiveAccess.Companion.reflectMethod
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.reactivecircus.cache4k.Cache
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.serialization.*
@@ -12,28 +12,48 @@ import io.ktor.utils.io.charsets.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
-import kotlinx.serialization.SerializationException
 import kotlin.reflect.KClass
 
-class ProtobufContentConverter : ContentConverter {
+/**
+ * Ktor [ContentConverter] for Google Protocol Buffers.
+ *
+ * Serializes [Message] to bytes and deserializes bytes to [Message] dynamically
+ * using the message class's static `parseFrom(byte[])` method.
+ *
+ * This converter can be used in both Ktor server and client content negotiation.
+ *
+ * **Usage Notes:**
+ * - Must be registered **before** [io.ktor.serialization.kotlinx.KotlinxSerializationConverter] in the content negotiation plugin,
+ *   otherwise it may incorrectly attempt to handle non-protobuf types and throw exceptions.
+ * - Required dependencies:
+ *   - `com.google.protobuf:protobuf-java`
+ *   - `io.ktor:ktor-serialization`
+ *   - `io.ktor:ktor-http`
+ *   - `io.ktor:ktor-io`
+ *   - `io.ktor:ktor-utils`
+ *   - `io.github.oshai:kotlin-logging`
+ *   - `org.jetbrains.kotlinx:kotlinx-coroutines-core`
+ *
+ * Example registration (server or client):
+ * ```
+ * install(ContentNegotiation) {
+ *     register(ContentType.Application.ProtoBuf, ProtobufContentConverter())
+ *     json() // kotlinx.serialization converter
+ * }
+ * ```
+ */
+class ProtobufContentConverter() : ContentConverter {
     private val logger = KotlinLogging.logger {}
 
-    // Only the deserialization method `parseFrom` is obtained via reflection and therefore needs to be cached,
-    // while serialization directly uses `com.google.protobuf.MessageLite.toByteArray`.
-    private val cache = Cache.Builder<TypeInfo, ReflectiveMethod<Message>>().build()
     override suspend fun serialize(
         contentType: ContentType,
         charset: Charset,
         typeInfo: TypeInfo,
         value: Any?
     ): OutgoingContent? {
-        if (!isProtobuf(typeInfo)) {
-            return null
-        }
-        val bytes = (value as? Message)?.toByteArray()
-            ?: throw ProtobufException.Encoding("Protobuf doesn't support protobuf types: $value")
-        if (bytes.isEmpty()) {
-            throw ProtobufException.Encoding("Encoding produced empty bytes for ${typeInfo.type}")
+        val bytes = when (value) {
+            is Message -> value.toByteArray()
+            else -> return null
         }
         return ByteArrayContent(
             bytes = bytes,
@@ -41,38 +61,28 @@ class ProtobufContentConverter : ContentConverter {
         )
     }
 
-
     override suspend fun deserialize(
         charset: Charset,
         typeInfo: TypeInfo,
         content: ByteReadChannel
     ): Any? {
-        if (!isProtobuf(typeInfo)) {
+        if (!typeInfo.isProtobuf()) {
             return null
         }
         val bytes = withContext(Dispatchers.IO) { content.readRemaining().readByteArray() }
-        if (bytes.isEmpty()) {
-            throw ProtobufException.Decoding("Empty body received for $typeInfo")
-        }
-        val parseFrom = cache.get(typeInfo) {
-            ReflectiveMethod<Message>(typeInfo.type.java, "parseFrom", ByteArray::class.java)
-        }
-        return parseFrom.invoke(null, bytes)
+        val parseFrom = reflectMethod(typeInfo.type.java, "parseFrom", ByteArray::class.java)
+        return parseFrom.invokeStatic(bytes)
     }
 
     companion object {
+        /** Checks if a [KClass] is a protobuf message type. */
         fun isProtobuf(kClass: KClass<*>): Boolean {
             return Message::class.java.isAssignableFrom(kClass.java)
         }
 
-        fun isProtobuf(typeInfo: TypeInfo): Boolean {
-            return isProtobuf(typeInfo.type)
-        }
-
-        sealed class ProtobufException(message: String?, cause: Throwable? = null) :
-            SerializationException(message, cause) {
-            class Decoding(message: String?, cause: Throwable? = null) : ProtobufException(message, cause)
-            class Encoding(message: String?, cause: Throwable? = null) : ProtobufException(message, cause)
+        /** Checks if a [TypeInfo] corresponds to a protobuf message. */
+        fun TypeInfo.isProtobuf(): Boolean {
+            return isProtobuf(type)
         }
     }
 }
