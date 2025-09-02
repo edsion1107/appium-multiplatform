@@ -1,38 +1,31 @@
 package io.appium.multiplatform.server
 
-import io.appium.multiplatform.defaultJson
-import io.appium.multiplatform.model.WireConverter
-import io.ktor.http.ContentType
-import io.ktor.serialization.kotlinx.json.json
+import io.appium.multiplatform.logger
+import io.appium.multiplatform.request.WebdriverSession
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.autohead.*
-import io.ktor.server.plugins.cachingheaders.CachingHeaders
-import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.plugins.compression.Compression
-import io.ktor.server.plugins.compression.deflate
-import io.ktor.server.plugins.compression.gzip
-import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cachingheaders.*
+import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.compression.*
+import io.ktor.server.plugins.conditionalheaders.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.forwardedheaders.*
-import io.ktor.server.plugins.partialcontent.PartialContent
-import io.ktor.server.plugins.requestvalidation.RequestValidation
-import io.ktor.server.resources.Resources
+import io.ktor.server.plugins.partialcontent.*
+import io.ktor.server.plugins.requestvalidation.*
+import io.ktor.server.resources.*
+import io.ktor.server.sessions.*
 
+expect fun requestValidation(): RequestValidationConfig.() -> Unit
+expect fun contentNegotiation(): ContentNegotiationConfig.() -> Unit
 fun Application.configureContentNegotiation() {
-    install(ContentNegotiation) {
-        checkAcceptHeaderCompliance = true
-        // The order of registered ContentConverters affects the matching logic.
-        // If KotlinxSerializationConverter is placed first, it will be selected with higher priority during checks.
-        register(ContentType.Application.ProtoBuf, WireConverter())
-        json(defaultJson)
-    }
+    install(ContentNegotiation, contentNegotiation())
 }
 
 fun Application.configureRequestValidation() {
-    install(RequestValidation) {
-    }
+    install(RequestValidation, requestValidation())
 }
 
 fun Application.configureResources() {
@@ -49,6 +42,7 @@ fun Application.configureCallLogging() {
         // sample: log.toKLogger().info { "Hello World" } or io.appium.multiplatform.logger.debug { "Hello World" }
     }
 }
+
 fun Application.configureAutoHeadResponse() {
     install(AutoHeadResponse)
 }
@@ -81,6 +75,7 @@ fun Application.configureMicrometerMetrics() {
 //        }
 //    }
 }
+
 fun Application.configureCachingHeaders() {
     install(CachingHeaders) {
     }
@@ -100,5 +95,23 @@ fun Application.configureConditionalHeaders() {
 
 fun Application.configurePartialContent() {
     install(PartialContent) {
+    }
+}
+
+fun Application.configureSessions() {
+    install(Sessions) {
+        cookie<WebdriverSession>("webdriver_session") {
+            cookie.path = "/"
+            cookie.maxAgeInSeconds = 60
+        }
+    }
+    install(Authentication) {
+        session<WebdriverSession>("webdriver_auth") {
+            validate { session ->
+                //TODO: not work
+                logger.info { "session validated: $session" }
+                session
+            }
+        }
     }
 }

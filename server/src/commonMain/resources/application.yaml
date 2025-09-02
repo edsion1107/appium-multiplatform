@@ -1,6 +1,7 @@
 ktor:
   deployment:
     port: 8080
+  #    grpcPort: 8081
   application:
     startup: concurrent
     modules:
@@ -17,3 +18,4 @@ ktor:
       - io.appium.multiplatform.server.PluginKt.configureCompression
       - io.appium.multiplatform.server.PluginKt.configureConditionalHeaders
       - io.appium.multiplatform.server.PluginKt.configurePartialContent
+#      - io.appium.multiplatform.server.PluginKt.configureSessions
