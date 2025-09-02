@@ -1,0 +1,13 @@
+version: v2
+modules:
+  - path: src/proto
+deps:
+  - buf.build/googleapis/googleapis
+  #  - buf.build/grpc/grpc
+  - buf.build/bufbuild/protovalidate
+lint:
+  use:
+    - BASIC
+breaking:
+  use:
+    - FILE

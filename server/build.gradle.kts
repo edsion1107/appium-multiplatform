@@ -10,7 +10,8 @@ plugins {
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.ktx.atomicfu)
     alias(libs.plugins.ksp)
-    id(libs.plugins.zipline.get().pluginId) //TODO: 使用Zipline实现基于quickJs的接口扩展能力，结合ktor-server-di可以实现能力+性能的平衡
+    // TODO: Use Zipline to implement interface extension capabilities based on QuickJS
+    id(libs.plugins.zipline.get().pluginId)
     id("AndroidConventionPlugin")
     id("AppRuntimePlugin")
 }
@@ -32,31 +33,30 @@ kotlin {
                 implementation(project.dependencies.enforcedPlatform(projects.platform))
                 implementation(projects.shared)
                 implementation(libs.bundles.ktor.server)
-                implementation(libs.micrometer.registry.prometheus)
+//                implementation(libs.micrometer.registry.prometheus)
                 implementation(libs.koin.ktor)
-                implementation(libs.wiregrpcserver)
-                implementation("org.jetbrains.kotlinx:kotlinx-rpc-grpc-ktor-server:0.10.0-grpc-122")
             }
         }
         androidMain {
+            kotlin.srcDir("src/jvmBase/kotlin")
             dependencies {
-                implementation(projects.jvmShared)
-                implementation("androidx.annotation:annotation:1.9.1")
+                // Since this includes a KMP submodule with a shared target (which doesn’t support Android),
+                // it effectively forces a dependency on the submodule’s JVM target code.
+                implementation(projects.shared)
+//                implementation("androidx.annotation:annotation:1.9.1")
                 implementation(libs.hiddenapibypass)
                 implementation(libs.koin.android)
                 implementation(libs.bundles.androidx.test)
-//                implementation(libs.bundles.grpc.server)
             }
         }
         androidInstrumentedTest {
             dependencies {
-                implementation(libs.bundles.androidx.test)
             }
         }
 
         jvmMain {
+            kotlin.srcDir("src/jvmBase/kotlin")
             dependencies {
-                implementation(projects.jvmShared)
                 implementation(libs.adblib)
                 implementation(libs.koin.logger.slf4j)
             }
@@ -74,7 +74,9 @@ android {
     namespace = "com.appium.multiplatform.server"
     sourceSets {
         getByName("main") {
+            // java and resources not work in kotlin.sourceSets.androidMain
             java.srcDirs("src/androidMain/java")
+            resources.srcDir("src/commonMain/resources")
         }
     }
 }

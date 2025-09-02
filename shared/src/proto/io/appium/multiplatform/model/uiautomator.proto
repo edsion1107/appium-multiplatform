@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package io.appium.multiplatform.model;
+//option java_outer_classname = "AppiumBy";
+//option optimize_for = LITE_RUNTIME;
+//option java_multiple_files = true;
+
+import "buf/validate/validate.proto";
+
+message RegexPattern {
+  // startsWith: "^%s.*$"
+  // endsWith: "^.*%s$"
+  // contains: "^.*%s.*$"
+  string text = 1 [(buf.validate.field).string.min_len = 1];
+
+  //// 类似textContains/textEndsWith/textStartsWith都是使用的androidx.test.uiautomator.util.Patterns中对应的方法，模式为Pattern.DOTALL（即flags=32）
+  uint32 flags = 2;
+}
+
+/**
+ * androidx.test.uiautomator.By
+ * 对应查找控件的方法：androidx.test.uiautomator.UiDevice.findObject(androidx.test.uiautomator.BySelector)
+ *
+ */
+message BySelector {
+  optional string clazz = 1 [
+    (buf.validate.field).string = {
+      min_len: 0
+      max_len: 255
+    },
+    // validate java class name
+    (buf.validate.field).string.pattern = "^([A-Za-z_$][A-Za-z0-9_$]*\\.)*[A-Za-z_$][A-Za-z0-9_$]*$"
+  ]; // androidx.test.uiautomator.By.clazz(java.lang.String)
+  optional string desc = 2 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.desc(java.lang.String)
+  optional string pkg = 3 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.pkg(java.lang.String)
+  optional string res = 4 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.res(java.lang.String)
+  optional string text = 5 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.text(java.lang.String)
+  optional bool checkable = 6; // androidx.test.uiautomator.By.checkable
+  optional bool checked = 7; // androidx.test.uiautomator.By.checked
+  optional bool clickable = 8; // androidx.test.uiautomator.By.clickable
+  optional bool enabled = 9; // androidx.test.uiautomator.By.enabled
+  optional bool focusable = 10; // androidx.test.uiautomator.By.focusable
+  optional bool focused = 11; // androidx.test.uiautomator.By.focused
+  optional bool long_clickable = 12; // androidx.test.uiautomator.By.longClickable
+  optional bool scrollable = 13; // androidx.test.uiautomator.By.scrollable
+  optional bool selected = 14; // androidx.test.uiautomator.By.selected
+  optional uint32 depth = 15 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.By.depth
+  optional uint32 display_id = 16 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.By.displayId, RequiresApi 30
+  optional string hint = 17 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.By.hint(java.lang.String),RequiresApi 26
+  optional RegexPattern hint_pattern = 18; // androidx.test.uiautomator.By.hint(java.util.regex.Pattern),RequiresApi 26
+  optional RegexPattern clazz_pattern = 19; // androidx.test.uiautomator.By.clazz(java.util.regex.Pattern)
+  optional RegexPattern desc_pattern = 20; // androidx.test.uiautomator.By.desc(java.util.regex.Pattern)
+  optional RegexPattern pkg_pattern = 21; // androidx.test.uiautomator.By.pkg(java.util.regex.Pattern)
+  optional RegexPattern res_pattern = 22; // androidx.test.uiautomator.By.res(java.util.regex.Pattern)
+  optional RegexPattern text_pattern = 23; // androidx.test.uiautomator.By.text(java.util.regex.Pattern)
+  //  optional BySelector copy = 30; // androidx.test.uiautomator.By.copy
+  optional BySelector ancestor = 31; // androidx.test.uiautomator.By.hasAncestor(androidx.test.uiautomator.BySelector)
+  optional BySelector child = 32; // androidx.test.uiautomator.By.hasChild
+  optional BySelector descendant = 33; // androidx.test.uiautomator.By.hasDescendant(androidx.test.uiautomator.BySelector)
+  optional BySelector parent = 34; // androidx.test.uiautomator.By.hasParent
+}
+
+/**
+ * androidx.test.uiautomator.UiSelector
+ * 对应查找控件的方法：androidx.test.uiautomator.UiDevice.findObject(androidx.test.uiautomator.UiSelector)
+ *
+ */
+message UiSelector {
+  optional string class_name = 1 [
+    (buf.validate.field).string = {
+      min_len: 0
+      max_len: 255
+    },
+    // validate java class name
+    (buf.validate.field).string.pattern = "^([A-Za-z_$][A-Za-z0-9_$]*\\.)*[A-Za-z_$][A-Za-z0-9_$]*$"
+  ]; // androidx.test.uiautomator.UiSelector.className(java.lang.String)
+  optional string description = 2 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.UiSelector.descriptionMatches
+  optional string package_name = 3 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.UiSelector.packageNameMatches
+  optional string resource_id = 4 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.UiSelector.resourceIdMatches
+  optional string text = 5 [(buf.validate.field).string.min_len = 0]; // androidx.test.uiautomator.UiSelector.textMatches
+  optional bool checkable = 6; // androidx.test.uiautomator.UiSelector.checkable
+  optional bool checked = 7; // androidx.test.uiautomator.UiSelector.checked
+  optional bool clickable = 8; // androidx.test.uiautomator.UiSelector.clickable
+  optional bool enabled = 9; // androidx.test.uiautomator.UiSelector.enabled
+  optional bool focusable = 10; // androidx.test.uiautomator.UiSelector.focusable
+  optional bool focused = 11; // androidx.test.uiautomator.UiSelector.focused
+  optional bool long_clickable = 12; // androidx.test.uiautomator.UiSelector.longClickable
+  optional bool scrollable = 13; // androidx.test.uiautomator.UiSelector.scrollable
+  optional bool selected = 14; // androidx.test.uiautomator.UiSelector.selected
+  optional uint32 index = 15 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.UiSelector.index
+  optional uint32 instance = 16 [(buf.validate.field).uint32.gte = 0]; // androidx.test.uiautomator.UiSelector.instance
+  optional RegexPattern class_name_matches = 19; // androidx.test.uiautomator.UiSelector.classNameMatches
+  optional RegexPattern description_matches = 20; // androidx.test.uiautomator.UiSelector.descriptionMatches
+  optional RegexPattern package_name_matches = 21; // androidx.test.uiautomator.UiSelector.packageNameMatches
+  optional RegexPattern resource_id_matches = 22; // androidx.test.uiautomator.UiSelector.resourceIdMatches
+  optional RegexPattern text_matches = 23; // androidx.test.uiautomator.UiSelector.textMatches
+  optional UiSelector selector = 31; // androidx.test.uiautomator.UiSelector.UiSelector(androidx.test.uiautomator.UiSelector)
+  optional UiSelector child_selector = 32; // androidx.test.uiautomator.UiSelector.childSelector
+  optional UiSelector from_parent = 33; // androidx.test.uiautomator.UiSelector.fromParent
+  optional UiSelector pattern = 34; // androidx.test.uiautomator.UiSelector.patternBuilder(androidx.test.uiautomator.UiSelector)
+}
+
+// android.graphics.Rect
+message Rect {
+  int32 left = 1;
+  int32 top = 2;
+  int32 right = 3;
+  int32 bottom = 4;
+}
+
+// android.graphics.Point
+message Point {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+// androidx.test.uiautomator.UiObject2
+message UiObject2 {
+  optional string class_name = 1;
+  optional string content_description = 2;
+  optional string application_package = 3;
+  optional string resource_name = 4;
+  optional string text = 5;
+  optional bool is_checkable = 6;
+  optional bool is_checked = 7;
+  optional bool is_clickable = 8;
+  optional bool is_enabled = 9;
+  optional bool is_focusable = 10;
+  optional bool is_focused = 11;
+  optional bool is_long_clickable = 12;
+  optional bool is_scrollable = 13;
+  optional bool is_selected = 14;
+
+  // RequiresApi 30
+  optional uint32 display_id = 16;
+
+  // RequiresApi 26
+  optional string hint = 17;
+  optional Rect visible_bounds = 18;
+  optional Point visible_center = 19;
+
+  // RequiresApi 24
+  optional int32 drawing_order = 31;
+  optional int32 child_count = 32;
+}
+
+/**
+ * androidx.test.uiautomator.UiObject
+ * 相比UiObject2，访问属性会更慢
+ */
+message UiObject {
+  optional string class_name = 1;
+  optional string content_description = 2;
+  optional string package_name = 3;
+  optional string text = 5;
+  optional bool is_checkable = 6;
+  optional bool is_checked = 7;
+  optional bool is_clickable = 8;
+  optional bool is_enabled = 9;
+  optional bool is_focusable = 10;
+  optional bool is_focused = 11;
+  optional bool is_long_clickable = 12;
+  optional bool is_scrollable = 13;
+  optional bool is_selected = 14;
+  optional bool exists = 15;
+  optional Rect visible_bounds = 18;
+  optional Rect bounds = 19;
+}

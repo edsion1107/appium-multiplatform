@@ -1,4 +1,0 @@
-package android.view.accessibility;
-
-parcelable AccessibilityWindowInfo;
-parcelable AccessibilityWindowInfo.WindowListSparseArray;
