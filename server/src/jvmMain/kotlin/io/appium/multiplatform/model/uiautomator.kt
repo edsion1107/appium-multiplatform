@@ -3,25 +3,23 @@ package io.appium.multiplatform.model
 /**
  * for testing
  */
-fun BySelector.toUiObject2() = UiObject2(
-    class_name = clazz ?: clazz_pattern?.text,
-    content_description = desc ?: desc_pattern?.text,
-    application_package = pkg ?: pkg_pattern?.text,
-    resource_name = res ?: res_pattern?.text,
-    text = text ?: text_pattern?.text,
-    is_checkable = checkable,
-    is_checked = checked,
-    is_clickable = clickable,
-    is_enabled = enabled,
-    is_focusable = focusable,
-    is_focused = focused,
-    is_long_clickable = long_clickable,
-    is_scrollable = scrollable,
-    is_selected = selected,
-    display_id = display_id,
-    hint = hint ?: hint_pattern?.text,
-    visible_bounds = null,
-    visible_center = null,
-    drawing_order = null,
-    child_count = null
-)
+fun BySelector.toUiObject2(): UiObject2 {
+    return uiObject2 {
+        (this@toUiObject2.clazz ?: this@toUiObject2.clazzPattern?.text)?.also { className = it }
+        (this@toUiObject2.desc ?: this@toUiObject2.descPattern?.text)?.also { contentDescription = it }
+        (this@toUiObject2.pkg ?: this@toUiObject2.pkgPattern?.text)?.also { applicationPackage = it }
+        (this@toUiObject2.res ?: this@toUiObject2.resPattern?.text)?.also { resourceName = it }
+        (this@toUiObject2.text ?: this@toUiObject2.textPattern?.text)?.also { text = it }
+        (this@toUiObject2.hint ?: this@toUiObject2.hintPattern?.text)?.also { hint = it }
+        isCheckable = this@toUiObject2.checkable
+        isChecked = this@toUiObject2.checked
+        isClickable = this@toUiObject2.clickable
+        isEnabled = this@toUiObject2.enabled
+        isFocusable = this@toUiObject2.focusable
+        isFocused = this@toUiObject2.focused
+        isLongClickable = this@toUiObject2.longClickable
+        isScrollable = this@toUiObject2.scrollable
+        isSelected = this@toUiObject2.selected
+        displayId = this@toUiObject2.displayId
+    }
+}

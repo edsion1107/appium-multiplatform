@@ -45,81 +45,139 @@ fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
         } ?: this // If value is null, keep uiSelector unchanged
     }
 
+    fun <T> androidx.test.uiautomator.BySelector?.chain(
+        value: T,
+        // func: How to add a condition to uiSelector if it's not null
+        func: androidx.test.uiautomator.BySelector.(T) -> androidx.test.uiautomator.BySelector,
+        // initial: How to create a new selector if uiSelector is null
+        initial: (T) -> androidx.test.uiautomator.BySelector
+    ): androidx.test.uiautomator.BySelector {
+        return this?.func(value) ?: initial(value)
+    }
     // --- 1. Build base selectors ---
     // `this` refers to the custom BySelector instance, from which we get property values.
     // Using Lambda to resolve overloading issues.
-    uiSelector = uiSelector.chain(this.clazz, { clazz(it) }, { By.clazz(it) })
-    uiSelector = uiSelector.chain(this.desc, { desc(it) }, { By.desc(it) })
-    uiSelector = uiSelector.chain(this.pkg, { pkg(it) }, { By.pkg(it) })
-    uiSelector = uiSelector.chain(this.res, { res(it) }, { By.res(it) })
-    uiSelector = uiSelector.chain(this.text, { text(it) }, { By.text(it) })
-
-    // For methods without overloads, method references are more concise.
-    uiSelector =
-        uiSelector.chain(this.checkable, androidx.test.uiautomator.BySelector::checkable, By::checkable)
-    uiSelector = uiSelector.chain(this.checked, androidx.test.uiautomator.BySelector::checked, By::checked)
-    uiSelector =
-        uiSelector.chain(this.clickable, androidx.test.uiautomator.BySelector::clickable, By::clickable)
-    uiSelector = uiSelector.chain(this.enabled, androidx.test.uiautomator.BySelector::enabled, By::enabled)
-    uiSelector =
-        uiSelector.chain(this.focusable, androidx.test.uiautomator.BySelector::focusable, By::focusable)
-    uiSelector = uiSelector.chain(this.focused, androidx.test.uiautomator.BySelector::focused, By::focused)
-    uiSelector = uiSelector.chain(
-        this.long_clickable,
-        androidx.test.uiautomator.BySelector::longClickable,
-        By::longClickable
-    )
-    uiSelector =
-        uiSelector.chain(this.scrollable, androidx.test.uiautomator.BySelector::scrollable, By::scrollable)
-    uiSelector = uiSelector.chain(this.selected, androidx.test.uiautomator.BySelector::selected, By::selected)
-    uiSelector = uiSelector.chain(this.depth, androidx.test.uiautomator.BySelector::depth, By::depth)
-
-    // Properties with API version checks.
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    if (hasClazz()) {
+        uiSelector = uiSelector.chain(clazz, androidx.test.uiautomator.BySelector::clazz, By::clazz)
+    } else if (hasClazzPattern()) {
         uiSelector =
-            uiSelector.chain(this.display_id, androidx.test.uiautomator.BySelector::displayId, By::displayId)
+            uiSelector.chain(
+                Pattern.compile(clazzPattern.text, clazzPattern.flags),
+                androidx.test.uiautomator.BySelector::clazz,
+                By::clazz
+            )
+    }
+    if (hasDesc()) {
+        uiSelector = uiSelector.chain(desc, androidx.test.uiautomator.BySelector::desc, By::desc)
+    } else if (hasDescPattern()) {
+        uiSelector = uiSelector.chain(
+            Pattern.compile(descPattern.text, descPattern.flags),
+            androidx.test.uiautomator.BySelector::desc,
+            By::desc
+        )
+    }
+    if (hasPkg()) {
+        uiSelector = uiSelector.chain(pkg, androidx.test.uiautomator.BySelector::pkg, By::pkg)
+    } else if (hasPkgPattern()) {
+        uiSelector = uiSelector.chain(
+            Pattern.compile(pkgPattern.text, pkgPattern.flags),
+            androidx.test.uiautomator.BySelector::pkg,
+            By::pkg
+        )
+    }
+    if (hasRes()) {
+        uiSelector = uiSelector.chain(res, androidx.test.uiautomator.BySelector::res, By::res)
+    } else if (hasResPattern()) {
+        uiSelector = uiSelector.chain(
+            Pattern.compile(resPattern.text, resPattern.flags),
+            androidx.test.uiautomator.BySelector::res,
+            By::res
+        )
+    }
+    if (hasText()) {
+        uiSelector = uiSelector.chain(text, androidx.test.uiautomator.BySelector::text, By::text)
+    } else if (hasTextPattern()) {
+        uiSelector = uiSelector.chain(
+            Pattern.compile(textPattern.text, textPattern.flags),
+            androidx.test.uiautomator.BySelector::text,
+            By::text
+        )
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        uiSelector = uiSelector.chain(this.hint, { hint(it) }, { By.hint(it) })
-        this.hint_pattern?.let {
-            val pattern = Pattern.compile(it.text, it.flags)
-            uiSelector = uiSelector.chain(pattern, { hint(it) }, { By.hint(it) })
+        if (hasHint()) {
+            uiSelector = uiSelector.chain(hint, androidx.test.uiautomator.BySelector::hint, By::hint)
+        } else if (hasHintPattern()) {
+            uiSelector = uiSelector.chain(
+                Pattern.compile(hintPattern.text, hintPattern.flags),
+                androidx.test.uiautomator.BySelector::hint,
+                By::hint
+            )
         }
     }
-
-    // Pattern properties.
-    this.clazz_pattern?.let {
-        uiSelector = uiSelector.chain(Pattern.compile(it.text, it.flags), { clazz(it) }, { By.clazz(it) })
+    if (hasCheckable()) {
+        uiSelector = uiSelector.chain(checkable, androidx.test.uiautomator.BySelector::checkable, By::checkable)
     }
-    this.desc_pattern?.let {
-        uiSelector = uiSelector.chain(Pattern.compile(it.text, it.flags), { desc(it) }, { By.desc(it) })
+    if (hasChecked()) {
+        uiSelector = uiSelector.chain(checked, androidx.test.uiautomator.BySelector::checked, By::checked)
     }
-    this.pkg_pattern?.let {
-        uiSelector = uiSelector.chain(Pattern.compile(it.text, it.flags), { pkg(it) }, { By.pkg(it) })
+    if (hasClickable()) {
+        uiSelector = uiSelector.chain(clickable, androidx.test.uiautomator.BySelector::clickable, By::clickable)
     }
-    this.res_pattern?.let {
-        uiSelector = uiSelector.chain(Pattern.compile(it.text, it.flags), { res(it) }, { By.res(it) })
+    if (hasEnabled()) {
+        uiSelector = uiSelector.chain(enabled, androidx.test.uiautomator.BySelector::enabled, By::enabled)
     }
-    this.text_pattern?.let {
-        uiSelector = uiSelector.chain(Pattern.compile(it.text, it.flags), { text(it) }, { By.text(it) })
+    if (hasFocusable()) {
+        uiSelector = uiSelector.chain(focusable, androidx.test.uiautomator.BySelector::focusable, By::focusable)
+    }
+    if (hasFocused()) {
+        uiSelector = uiSelector.chain(focused, androidx.test.uiautomator.BySelector::focused, By::focused)
+    }
+    if (hasLongClickable()) {
+        uiSelector =
+            uiSelector.chain(longClickable, androidx.test.uiautomator.BySelector::longClickable, By::longClickable)
+    }
+    if (hasScrollable()) {
+        uiSelector = uiSelector.chain(scrollable, androidx.test.uiautomator.BySelector::scrollable, By::scrollable)
+    }
+    if (hasSelected()) {
+        uiSelector = uiSelector.chain(selected, androidx.test.uiautomator.BySelector::selected, By::selected)
+    }
+    if (hasDepth()) {
+        uiSelector = uiSelector.chain(depth, androidx.test.uiautomator.BySelector::depth, By::depth)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (hasDisplayId()) {
+            uiSelector = uiSelector.chain(displayId, androidx.test.uiautomator.BySelector::displayId, By::displayId)
+        }
     }
 
     // --- 2. Ensure selector is created, otherwise conversion is meaningless ---
     var finalSelector = requireNotNull(uiSelector) {
         "Custom BySelector must contain at least one condition to be converted."
     }
+    if (hasAncestor()) {
+        finalSelector = finalSelector.chain(
+            ancestor.toBySelector(),
+            androidx.test.uiautomator.BySelector::hasAncestor,
+            By::hasAncestor
+        )
+    }
+    if (hasChild()) {
+        finalSelector =
+            finalSelector.chain(child.toBySelector(), androidx.test.uiautomator.BySelector::hasChild, By::hasChild)
+    }
+    if (hasDescendant()) {
+        finalSelector = finalSelector.chain(
+            descendant.toBySelector(),
+            androidx.test.uiautomator.BySelector::hasDescendant,
+            By::hasDescendant
+        )
+    }
+    if (hasParent()) {
+        finalSelector =
+            finalSelector.chain(parent.toBySelector(), androidx.test.uiautomator.BySelector::hasParent, By::hasParent)
+    }
 
-    // --- 3. Apply copy and hierarchy ---
-    this.copy?.let { finalSelector = By.copy(finalSelector) }
-
-    // Fix bug: Ensure calls to hierarchy selectors are reassigned.
-    // `it.toBySelector()` is the correct recursive call.
-    this.has_ancestor?.let { finalSelector = finalSelector.hasAncestor(it.toBySelector()) }
-    this.has_child?.let { finalSelector = finalSelector.hasChild(it.toBySelector()) }
-    this.has_descendant?.let { finalSelector = finalSelector.hasDescendant(it.toBySelector()) }
-    this.has_parent?.let { finalSelector = finalSelector.hasParent(it.toBySelector()) }
-
-    // --- 4. Return the final result ---
     return finalSelector
 }
 
@@ -131,28 +189,28 @@ fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
  * @param this The `androidx.test.uiautomator.UiObject2` instance to convert.
  * @return A custom `UiObject2` data class instance.
  */
-fun androidx.test.uiautomator.UiObject2.toUiObject2() = UiObject2(
-    class_name = this.className,
-    content_description = this.contentDescription,
-    application_package = this.applicationPackage,
-    resource_name = this.resourceName,
-    text = this.text,
-    is_checkable = this.isCheckable,
-    is_checked = this.isChecked,
-    is_clickable = this.isClickable,
-    is_enabled = this.isEnabled,
-    is_focusable = this.isFocusable,
-    is_focused = this.isFocused,
-    is_long_clickable = this.isLongClickable,
-    is_scrollable = this.isScrollable,
-    is_selected = this.isSelected,
-    display_id = this.displayId,
-    hint = this.hint,
-    visible_bounds = this.visibleBounds.toRect(),
-    visible_center = this.visibleCenter.toPoint(),
-    drawing_order = this.drawingOrder,
-//                child_count = this.childCount,
-)
+fun androidx.test.uiautomator.UiObject2.toProto() = uiObject2 {
+    this@toProto.className?.also { className = it }
+    this@toProto.contentDescription?.also { contentDescription = it }
+    this@toProto.applicationPackage?.also { applicationPackage = it }
+    this@toProto.resourceName?.also { resourceName = it }
+    this@toProto.text?.also { text = it }
+    this@toProto.hint?.also { hint = it }
+    isCheckable = this@toProto.isCheckable
+    isChecked = this@toProto.isChecked
+    isClickable = this@toProto.isClickable
+    isEnabled = this@toProto.isEnabled
+    isFocusable = this@toProto.isFocusable
+    isFocused = this@toProto.isFocused
+    isLongClickable = this@toProto.isLongClickable
+    isScrollable = this@toProto.isScrollable
+    isSelected = this@toProto.isSelected
+    displayId = this@toProto.displayId
+    visibleBounds = this@toProto.visibleBounds.toProto()
+    visibleCenter = this@toProto.visibleCenter.toProto()
+    drawingOrder = this@toProto.drawingOrder
+}
+
 
 /**
  * Converts an Android graphics Rect to a custom Rect data class.
@@ -160,12 +218,12 @@ fun androidx.test.uiautomator.UiObject2.toUiObject2() = UiObject2(
  * @param this The `android.graphics.Rect` instance to convert.
  * @return A custom `Rect` data class instance.
  */
-fun android.graphics.Rect.toRect() = Rect(
-    left = this.left,
-    top = this.top,
-    right = this.right,
-    bottom = this.bottom,
-)
+fun android.graphics.Rect.toProto() = rect {
+    left = this@toProto.left
+    top = this@toProto.top
+    right = this@toProto.right
+    bottom = this@toProto.bottom
+}
 
 /**
  * Converts an Android graphics Point to a custom Point data class.
@@ -173,7 +231,7 @@ fun android.graphics.Rect.toRect() = Rect(
  * @param this The `android.graphics.Point` instance to convert.
  * @return A custom `Point` data class instance.
  */
-fun android.graphics.Point.toPoint() = Point(
-    x = this.x,
-    y = this.y
-)
+fun android.graphics.Point.toProto() = point {
+    x = this@toProto.x
+    y = this@toProto.y
+}
