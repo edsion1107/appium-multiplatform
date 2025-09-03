@@ -1,20 +1,23 @@
 package io.appium.multiplatform
 
-import io.appium.multiplatform.jvm.configSlf4j
-import io.appium.multiplatform.service.ElementHandler
-import io.appium.multiplatform.service.FakeBySelectorHandler
-import io.appium.multiplatform.service.FindElementRequest
-import io.appium.multiplatform.service.FindElementResponse
+import io.appium.multiplatform.jvm.setSystemPropertyIfAbsent
+import io.appium.multiplatform.model.BySelector
+import io.appium.multiplatform.model.UiObject2
+import io.appium.multiplatform.service.ElementRepository
+import io.appium.multiplatform.service.ElementRepositoryName
+import io.appium.multiplatform.service.FakeBySelectorElementRepositoryImpl
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.koin.dsl.bind
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.logger.SLF4JLogger
 
+
 actual val logger: KLogger = run {
-    configSlf4j()
+    setSystemPropertyIfAbsent("org.slf4j.simpleLogger.logFile", "System.out")
+    setSystemPropertyIfAbsent("org.slf4j.simpleLogger.defaultLogLevel", "INFO")
     KotlinLogging.logger {}
 }
 
@@ -26,12 +29,7 @@ actual fun init() {
 }
 
 val jvmModule = module {
-    single(createdAtStart = true) {
-        FakeBySelectorHandler(
-            selectorType = FindElementRequest.SELECTOR_BY,
-            elementType = FindElementResponse.ELEMENT_UIOBJECT2
-        )
-    }.bind<ElementHandler<*, *>>()
+    single<ElementRepository<BySelector, UiObject2>>(named(ElementRepositoryName.BY_SELECTOR)) { FakeBySelectorElementRepositoryImpl() }
 }
 
 actual fun initKoin() = startKoin {

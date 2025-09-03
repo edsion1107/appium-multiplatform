@@ -9,19 +9,20 @@ import android.os.Bundle
 import android.os.Looper
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import io.appium.multiplatform.jvm.ReflectiveMethod
+import io.appium.multiplatform.jvm.ReflectiveAccess.Companion.reflectMethod
 import io.appium.multiplatform.util.HiddenApi
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 @SuppressLint("PrivateApi")
-object UiDeviceProvider {
+class UiDeviceProvider {
     init {
         @Suppress("DEPRECATION")
         Looper.prepareMainLooper()  // fix: Can't create handler inside thread, that has not called Looper.prepare()
     }
-
-    const val UI_AUTOMATION_CONNECTION_CLASS = "android.app.UiAutomationConnection"
-    const val ACTIVITY_THREAD_CLASS = "android.app.ActivityThread"
+    companion object {
+        const val UI_AUTOMATION_CONNECTION_CLASS = "android.app.UiAutomationConnection"
+        const val ACTIVITY_THREAD_CLASS = "android.app.ActivityThread"
+    }
     private val logger = KotlinLogging.logger {}
     private val componentName =
         ComponentName("com.appium.multiplatform.server", "androidx.test.runner.AndroidJUnitRunner")
@@ -56,9 +57,8 @@ object UiDeviceProvider {
     }
 
     fun initialize() {
-        val initMethod = ReflectiveMethod<Instrumentation>(
-            Instrumentation::class.java,
-            "init",
+        val initMethod = reflectMethod(
+            Instrumentation::class.java, "init",
             Class.forName(ACTIVITY_THREAD_CLASS),
             Context::class.java,
             Context::class.java,
