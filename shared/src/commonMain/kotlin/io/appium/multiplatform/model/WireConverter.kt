@@ -32,7 +32,7 @@ class WireConverter : ContentConverter {
         typeInfo: TypeInfo,
         value: Any?
     ): OutgoingContent? {
-        if (!typeInfo.isWireMessage()){
+        if (!typeInfo.isWireMessage()) {
             return null
         }
         val message = value as? Message<*, *>
@@ -60,7 +60,7 @@ class WireConverter : ContentConverter {
         typeInfo: TypeInfo,
         content: ByteReadChannel
     ): Any? {
-        if (!typeInfo.isWireMessage()){
+        if (!typeInfo.isWireMessage()) {
             return null
         }
         return try {

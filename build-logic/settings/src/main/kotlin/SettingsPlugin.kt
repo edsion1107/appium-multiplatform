@@ -1,4 +1,5 @@
 @file:Suppress("UnstableApiUsage")
+
 package io.appium.multiplatform.convention
 
 import org.gradle.api.Plugin

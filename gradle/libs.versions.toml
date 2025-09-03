@@ -17,11 +17,11 @@ pgv-java-stub = "0.6.13"
 wire = "5.3.11"
 wiregrpcserver = "1.0.0-alpha04"
 koin = "4.1.0"
-koin-annotations = "2.1.0"
+koin-annotations = "2.2.0-Beta5"
 kotest = "6.0.0"
 kotlin-logging = "7.0.7"
 monitor = "1.7.2"
-atomicfu = "0.28.0"
+atomicfu = "0.29.0"
 ktx-coroutines = "1.10.2"
 ktx-datetime = "0.7.1"
 ktx-serialization = "1.9.0"   # require Kotlin 2.2, support kotlin.time.Instant serializers.
@@ -71,6 +71,8 @@ ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation" }
+ktor-server-sessions = { module = "io.ktor:ktor-server-sessions" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host" }
 ktor-server-test-host-jvm = { module = "io.ktor:ktor-server-test-host-jvm" }
 ktor-server-di = { module = "io.ktor:ktor-server-di" }
@@ -85,13 +87,15 @@ grpc-stub = { module = "io.grpc:grpc-stub" }
 grpc-protobuf = { module = "io.grpc:grpc-protobuf" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-stub-kt" }
 google-common-protos = { module = "com.google.api.grpc:proto-google-common-protos", version.ref = "google-common-proto" }
+wire-runtime = { module = "com.squareup.wire:wire-runtime" }
 wiregrpcserver-generator = { module = "com.squareup.wiregrpcserver:server-generator", version.ref = "wiregrpcserver" }
 wiregrpcserver = { module = "com.squareup.wiregrpcserver:server", version.ref = "wiregrpcserver" }
 protovalidate = { module = "build.buf:protovalidate", version.ref = "protovalidate" }
 pgv-java-stub = { module = "io.envoyproxy.protoc-gen-validate:pgv-java-stub", version.ref = "pgv-java-stub" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-android = { module = "io.insert-koin:koin-android" }
-koin-annotations = { module = "io.insert-koin:koin-annotations" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
@@ -139,12 +143,13 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
     "ktor-server-content-negotiation", "ktor-serialization-kotlinx-json", "ktor-server-resources",
     "ktor-server-auto-head-response", "ktor-server-default-headers", "ktor-server-caching-headers",
     "ktor-server-compression", "ktor-server-conditional-headers", "ktor-server-cors", "ktor-server-forwarded-header",
-    "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation", "ktor-server-di"]
+    "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation", "ktor-server-di",
+    "ktor-server-sessions", "ktor-server-auth"]
 grpc-server = ["grpc-core", "grpc-okhttp"]
 ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-logging", "ktor-client-content-negotiation",
     "ktor-serialization-kotlinx-json", "ktor-client-resources"]
 ktor-shared = ["ktor-serialization", "ktor-utils", "ktor-http", "ktor-io", "ktor-resources"]
-protovalidate = ["protovalidate", "pgv-java-stub"]
+protovalidate = ["protovalidate", "pgv-java-stub", "google-common-protos"]
 androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
 
