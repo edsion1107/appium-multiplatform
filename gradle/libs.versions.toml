@@ -18,7 +18,7 @@ wire = "5.3.11"
 wiregrpcserver = "1.0.0-alpha04"
 koin = "4.1.0"
 koin-annotations = "2.2.0-Beta5"
-kotest = "6.0.0"
+kotest = "6.0.2"
 kotlin-logging = "7.0.7"
 monitor = "1.7.2"
 atomicfu = "0.29.0"
@@ -38,6 +38,7 @@ protobuf-plugin = "0.9.5"
 buf = "0.10.3"
 zipline = "1.22.0"
 cache4k = "0.14.0"
+mockk = "1.14.5"
 
 [libraries]
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -108,6 +109,7 @@ kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
 kotest-extensions-koin = { module = "io.kotest:kotest-extensions-koin" }
 kotest-extensions-koin-jvm = { module = "io.kotest:kotest-extensions-koin-jvm" }
 kotest-extensions-allure = { module = "io.kotest:kotest-extensions-allure" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core" }
 kotest-assertions-ktor = { module = "io.kotest:kotest-assertions-ktor" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
@@ -129,6 +131,9 @@ protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", versio
 protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
 zipline-gradle-plugin = { module = "app.cash.zipline:zipline-gradle-plugin", version.ref = "zipline" }
 cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockk" }
 
 # Dependencies of the included build-logic
 kotlinAndroid-gradlePlugin = { module = "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin", version.ref = "kotlin" }

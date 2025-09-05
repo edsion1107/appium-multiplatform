@@ -8,8 +8,10 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ktx.serialization)
+    alias(libs.plugins.kotest)
     alias(libs.plugins.buf)
 }
 
@@ -38,6 +40,13 @@ kotlin {
                 api(libs.ktx.serialization.json)
                 api(libs.cache4k)
                 implementation(libs.wire.runtime) // 暂时先不用wire
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotest.framework.engine)
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.kotest.assertions.core)
             }
         }
         // Code that can be shared between the parent modules `server` and `client`.
@@ -90,6 +99,15 @@ sourceSets {
         // https://github.com/bufbuild/buf-gradle-plugin/issues/190
         java.srcDir(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/java"))
     }
+}
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+    systemProperties(
+        mapOf(
+            "kotest.framework.dump.config" to true,
+            "kotest.framework.config.fqn" to "io.appium.multiplatform.ProjectConfig",
+        )
+    )
 }
 val generateTasks = tasks.withType<GenerateTask>()
 
