@@ -11,8 +11,8 @@ plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ktx.serialization)
-    alias(libs.plugins.kotest)
     alias(libs.plugins.buf)
+    alias(libs.plugins.convention.kotest)
 }
 
 group = "io.appium.multiplatform"
@@ -100,15 +100,7 @@ sourceSets {
         java.srcDir(layout.buildDirectory.file("$BUF_BUILD_DIR/$GENERATED_DIR/java"))
     }
 }
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    systemProperties(
-        mapOf(
-            "kotest.framework.dump.config" to true,
-            "kotest.framework.config.fqn" to "io.appium.multiplatform.ProjectConfig",
-        )
-    )
-}
+
 val generateTasks = tasks.withType<GenerateTask>()
 
 tasks.withType<KotlinCompile>().configureEach {

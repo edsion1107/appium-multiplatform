@@ -26,5 +26,9 @@ gradlePlugin {
             id = "AppRuntimePlugin"
             implementationClass = "io.appium.multiplatform.convention.AppRuntimePlugin"
         }
+        register("KotestConventionPlugin"){
+            id = "KotestConventionPlugin"
+            implementationClass = "io.appium.multiplatform.convention.KotestConventionPlugin"
+        }
     }
 }

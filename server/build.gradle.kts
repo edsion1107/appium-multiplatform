@@ -5,15 +5,13 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 plugins {
     alias(libs.plugins.project.report)
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotest)
     alias(libs.plugins.android.application)
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.ktx.atomicfu)
-    alias(libs.plugins.ksp)
-    // TODO: Use Zipline to implement interface extension capabilities based on QuickJS
-    id(libs.plugins.zipline.get().pluginId)
-    id("AndroidConventionPlugin")
-    id("AppRuntimePlugin")
+    id(libs.plugins.zipline.get().pluginId) // TODO: Use Zipline to implement interface extension capabilities based on QuickJS
+    alias(libs.plugins.convention.android)
+    alias(libs.plugins.convention.appruntime)
+    alias(libs.plugins.convention.kotest)
 }
 
 group = "io.appium.multiplatform"
@@ -37,6 +35,19 @@ kotlin {
                 implementation(libs.koin.ktor)
             }
         }
+        commonTest {
+            dependencies {
+                implementation(project.dependencies.enforcedPlatform(projects.platform))
+                implementation(libs.kotest.framework.engine)
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.ktor.server.test.host)
+                implementation(libs.bundles.ktor.client)
+                implementation(libs.kotest.extensions.koin)
+                implementation(libs.kotest.assertions.ktor)
+                implementation(libs.kotest.extensions.allure)
+                implementation(libs.mockk)
+            }
+        }
         androidMain {
             kotlin.srcDir("src/jvmBase/kotlin")
             dependencies {
@@ -49,8 +60,11 @@ kotlin {
                 implementation(libs.bundles.androidx.test)
             }
         }
-        androidInstrumentedTest {
+
+        androidUnitTest{
             dependencies {
+//                implementation(libs.kotlin.logging)
+                implementation(libs.mockk.android)
             }
         }
 
@@ -81,9 +95,6 @@ android {
     }
 }
 
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
 
 appRuntime {
 //    mainClass = "io.appium.multiplatform.server.DemoKt"

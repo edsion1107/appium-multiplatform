@@ -159,6 +159,10 @@ androidx-test = ["androidx-test-runner", "uiautomator", "uiautomator-shell"]
 appRuntime-plugin = ["android-gradle-plugin", "android-gradle-builder-test-api", "android-tools-ddmlib"] # AppRuntimePlugin required
 
 [plugins]
+convention-android = { id = "AndroidConventionPlugin" }
+convention-appruntime = { id = "AppRuntimePlugin" }
+convention-kotest = { id = "KotestConventionPlugin" }
+
 project-report = { id = "project-report" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -178,3 +182,4 @@ buf = { id = "build.buf", version.ref = "buf" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }
 power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
+

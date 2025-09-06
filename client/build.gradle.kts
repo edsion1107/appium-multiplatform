@@ -3,8 +3,8 @@ import build.buf.gradle.GENERATED_DIR
 
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.kotest)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.project.report)
+    alias(libs.plugins.convention.kotest)
 }
 
 group = "io.appium.multiplatform"
@@ -29,14 +29,14 @@ dependencies {
     implementation(libs.bundles.ktor.client)
 }
 
-tasks.test {
-    useJUnitPlatform()
-    reports {
-        html.required.set(true)
-        junitXml.required.set(false)
-    }
-//    systemProperty("allure.results.directory", project.layout.buildDirectory.dir("allure-results"))
-}
+//tasks.test {
+//    useJUnitPlatform()
+//    reports {
+//        html.required.set(true)
+//        junitXml.required.set(false)
+//    }
+////    systemProperty("allure.results.directory", project.layout.buildDirectory.dir("allure-results"))
+//}
 
 sourceSets {
     main {
