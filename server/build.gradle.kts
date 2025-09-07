@@ -60,11 +60,10 @@ kotlin {
                 implementation(libs.bundles.androidx.test)
             }
         }
-
         androidUnitTest{
             dependencies {
-//                implementation(libs.kotlin.logging)
                 implementation(libs.mockk.android)
+                implementation(libs.mockk.agent)
             }
         }
 
@@ -91,6 +90,11 @@ android {
             // java and resources not work in kotlin.sourceSets.androidMain
             java.srcDirs("src/androidMain/java")
             resources.srcDir("src/commonMain/resources")
+        }
+    }
+    testOptions{
+        unitTests.all {
+            it.useJUnitPlatform()
         }
     }
 }
