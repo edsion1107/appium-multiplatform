@@ -94,6 +94,7 @@ wiregrpcserver = { module = "com.squareup.wiregrpcserver:server", version.ref = 
 protovalidate = { module = "build.buf:protovalidate", version.ref = "protovalidate" }
 pgv-java-stub = { module = "io.envoyproxy.protoc-gen-validate:pgv-java-stub", version.ref = "pgv-java-stub" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
+koin-test = { module = "io.insert-koin:koin-test" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }

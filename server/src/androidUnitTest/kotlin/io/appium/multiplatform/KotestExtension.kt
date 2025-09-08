@@ -1,5 +1,6 @@
 package io.appium.multiplatform
 
+import androidx.test.uiautomator.UiDevice
 import io.appium.multiplatform.jvm.ProtobufContentConverter
 import io.appium.multiplatform.service.UiDeviceProvider
 import io.kotest.koin.KoinExtension
@@ -15,6 +16,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import org.koin.dsl.module
@@ -46,7 +48,12 @@ suspend fun <T> withKtorClient(
 
 val koinExtension = KoinExtension(
     modules = listOf(androidModule, module {
-        single<UiDeviceProvider> { mockk<UiDeviceProvider>(relaxed = true) }
+        // Declare another single<UiDeviceProvider> after androidModule to override its definition
+        single<UiDeviceProvider> {
+            mockk<UiDeviceProvider>().also {
+                every { it.get(any()) } returns mockk<UiDevice>()
+            }
+        }
     }),
-    mode = KoinLifecycleMode.Test
+    mode = KoinLifecycleMode.Root
 )
