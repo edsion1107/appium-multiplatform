@@ -4,7 +4,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.withType
-import kotlin.text.set
 
 class KotestConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -12,6 +11,14 @@ class KotestConventionPlugin : Plugin<Project> {
         target.plugins.apply("com.google.devtools.ksp")
 
         target.tasks.withType<Test>().configureEach {
+
+            // Instead of manually supplying the '--rerun' parameter, force every test to run
+            // https://github.com/kotest/kotest/issues/5076
+            outputs.upToDateWhen {
+                logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
+                false
+            }
+
             useJUnitPlatform()
             reports {
                 html.required.set(true)

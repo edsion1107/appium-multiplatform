@@ -82,6 +82,9 @@ configurations.all {
  *
  * I'm not satisfied with how Wire handles oneOf, and its ecosystem is not fully mature:
  * some libraries are outdated or still experimental. It also doesn't support Python or Node.js.
+ *
+ * Note: Frequent calls without using the build cache may cause `resource_exhausted: too many requests`,
+ *     for example when adding the `--rerun-tasks` parameter.
  */
 buf {
     // configFileLocation = rootProject.file("buf.yaml")
