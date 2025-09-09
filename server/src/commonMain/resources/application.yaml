@@ -18,4 +18,5 @@ ktor:
       - io.appium.multiplatform.server.PluginKt.configureCompression
       - io.appium.multiplatform.server.PluginKt.configureConditionalHeaders
       - io.appium.multiplatform.server.PluginKt.configurePartialContent
+      - io.appium.multiplatform.server.PluginKt.configStatusPages
 #      - io.appium.multiplatform.server.PluginKt.configureSessions

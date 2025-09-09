@@ -4,6 +4,7 @@ import io.appium.multiplatform.defaultJson
 import io.appium.multiplatform.jvm.ProtobufContentConverter
 import io.appium.multiplatform.jvm.StatusException
 import io.appium.multiplatform.jvm.StatusException.Companion.buildHttpStatusException
+import io.appium.multiplatform.jvm.StatusException.Companion.toHttpStatusCode
 import io.appium.multiplatform.jvm.pbValidator
 import io.appium.multiplatform.service.FindElementRequest
 import io.appium.multiplatform.service.FindElementResponse
@@ -13,6 +14,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.requestvalidation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 
 fun build.buf.protovalidate.ValidationResult.toRequestValidationResult(): ValidationResult {
     return if (this.isSuccess) {
@@ -38,4 +41,22 @@ actual fun contentNegotiation(): ContentNegotiationConfig.() -> Unit = {
     checkAcceptHeaderCompliance = true
     register(ContentType.Application.ProtoBuf, ProtobufContentConverter())
     json(defaultJson)
+}
+
+actual fun statusPagesConfig(): StatusPagesConfig.() -> Unit = {
+    exception<StatusException> { call, cause ->
+        with(cause.status) {
+
+            if (hasHttpStatusCode()) {
+                val httpStatusCode = HttpStatusCode.fromValue(httpStatusCode.number)
+                call.respond(status = httpStatusCode, this)
+            } else if (hasWebdriverErrorCode()) {
+                val httpStatusCode = HttpStatusCode.fromValue(webdriverErrorCode.toHttpStatusCode().number)
+                call.respond(status = httpStatusCode, this)
+            } else {
+                call.respond(this)
+            }
+        }
+
+    }
 }

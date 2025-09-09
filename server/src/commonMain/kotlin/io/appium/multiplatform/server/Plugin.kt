@@ -15,11 +15,14 @@ import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.forwardedheaders.*
 import io.ktor.server.plugins.partialcontent.*
 import io.ktor.server.plugins.requestvalidation.*
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.resources.*
 import io.ktor.server.sessions.*
 
 expect fun requestValidation(): RequestValidationConfig.() -> Unit
 expect fun contentNegotiation(): ContentNegotiationConfig.() -> Unit
+expect fun statusPagesConfig():StatusPagesConfig.()-> Unit
 fun Application.configureContentNegotiation() {
     install(ContentNegotiation, contentNegotiation())
 }
@@ -97,7 +100,9 @@ fun Application.configurePartialContent() {
     install(PartialContent) {
     }
 }
-
+fun Application.configStatusPages(){
+    install(StatusPages,statusPagesConfig())
+}
 fun Application.configureSessions() {
     install(Sessions) {
         cookie<WebdriverSession>("webdriver_session") {

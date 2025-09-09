@@ -74,6 +74,48 @@ class StatusException(
                 }
             }.toException(logger, payload)
         }
+        fun WebDriverErrorCode.toHttpStatusCode():HttpStatusCode{
+            return when (this) {
+                WebDriverErrorCode.WD_SUCCESS -> HttpStatusCode.HTTP_OK
+                WebDriverErrorCode.WD_NO_ERROR -> HttpStatusCode.HTTP_OK
+                WebDriverErrorCode.WD_ELEMENT_NOT_VISIBLE -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_COOKIE_DOMAIN_OLD -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_SELECTOR_OLD -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_NO_SUCH_ELEMENT_OLD -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_FRAME_OLD -> HttpStatusCode.HTTP_NOT_FOUND
+
+                WebDriverErrorCode.WD_ELEMENT_CLICK_INTERCEPTED -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_ELEMENT_NOT_INTERACTABLE -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INSECURE_CERTIFICATE -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_ARGUMENT -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_COOKIE_DOMAIN -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_ELEMENT_STATE -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_SELECTOR -> HttpStatusCode.HTTP_BAD_REQUEST
+                WebDriverErrorCode.WD_INVALID_SESSION_ID -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_JAVASCRIPT_ERROR -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_MOVE_TARGET_OUT_OF_BOUNDS -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_NO_SUCH_ALERT -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_COOKIE -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_ELEMENT -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_FRAME -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_WINDOW -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_NO_SUCH_SHADOW_ROOT -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_SCRIPT_TIMEOUT -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_SESSION_NOT_CREATED -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_STALE_ELEMENT_REFERENCE -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_DETACHED_SHADOW_ROOT -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_TIMEOUT -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_UNABLE_TO_SET_COOKIE -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_UNABLE_TO_CAPTURE_SCREEN -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_UNEXPECTED_ALERT_OPEN -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_UNKNOWN_COMMAND -> HttpStatusCode.HTTP_NOT_FOUND
+                WebDriverErrorCode.WD_UNKNOWN_ERROR -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+                WebDriverErrorCode.WD_UNKNOWN_METHOD -> HttpStatusCode.HTTP_METHOD_NOT_ALLOWED
+                WebDriverErrorCode.WD_UNSUPPORTED_OPERATION -> HttpStatusCode.HTTP_INTERNAL_SERVER_ERROR
+
+                else -> HttpStatusCode.HTTP_NOT_IMPLEMENTED
+            }
+        }
     }
 }
 

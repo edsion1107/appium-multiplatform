@@ -72,6 +72,7 @@ ktor-server-partial-content = { module = "io.ktor:ktor-server-partial-content" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
 ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages" }
 ktor-server-sessions = { module = "io.ktor:ktor-server-sessions" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host" }
@@ -150,7 +151,7 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
     "ktor-server-auto-head-response", "ktor-server-default-headers", "ktor-server-caching-headers",
     "ktor-server-compression", "ktor-server-conditional-headers", "ktor-server-cors", "ktor-server-forwarded-header",
     "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation", "ktor-server-di",
-    "ktor-server-sessions", "ktor-server-auth"]
+    "ktor-server-sessions", "ktor-server-auth","ktor-server-status-pages"]
 grpc-server = ["grpc-core", "grpc-okhttp"]
 ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-logging", "ktor-client-content-negotiation",
     "ktor-serialization-kotlinx-json", "ktor-client-resources"]
