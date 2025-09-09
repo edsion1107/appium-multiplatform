@@ -16,6 +16,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import io.ktor.util.reflect.*
 
 fun build.buf.protovalidate.ValidationResult.toRequestValidationResult(): ValidationResult {
     return if (this.isSuccess) {
@@ -46,17 +47,13 @@ actual fun contentNegotiation(): ContentNegotiationConfig.() -> Unit = {
 actual fun statusPagesConfig(): StatusPagesConfig.() -> Unit = {
     exception<StatusException> { call, cause ->
         with(cause.status) {
-
-            if (hasHttpStatusCode()) {
-                val httpStatusCode = HttpStatusCode.fromValue(httpStatusCode.number)
-                call.respond(status = httpStatusCode, this)
-            } else if (hasWebdriverErrorCode()) {
-                val httpStatusCode = HttpStatusCode.fromValue(webdriverErrorCode.toHttpStatusCode().number)
-                call.respond(status = httpStatusCode, this)
-            } else {
-                call.respond(this)
+            val httpStatusCode = when {
+                hasHttpStatusCode() -> HttpStatusCode.fromValue(httpStatusCode.number)
+                hasWebdriverErrorCode() -> HttpStatusCode.fromValue(webdriverErrorCode.toHttpStatusCode().number)
+                hasRpcCode() -> HttpStatusCode.OK
+                else -> HttpStatusCode.NotImplemented
             }
+            call.respond(status = httpStatusCode, message = this, messageType = TypeInfo(this::class))
         }
-
     }
 }
