@@ -1,8 +1,14 @@
 package io.appium.multiplatform
 
-import androidx.test.uiautomator.UiDevice
 import io.appium.multiplatform.jvm.ProtobufContentConverter
-import io.appium.multiplatform.service.UiDeviceProvider
+import io.appium.multiplatform.model.BySelector
+import io.appium.multiplatform.model.UiObject
+import io.appium.multiplatform.model.UiObject2
+import io.appium.multiplatform.model.UiSelector
+import io.appium.multiplatform.service.BySelectorElementRepositoryImpl
+import io.appium.multiplatform.service.ElementRepository
+import io.appium.multiplatform.service.ElementRepositoryName
+import io.appium.multiplatform.service.UiSelectorElementRepositoryImpl
 import io.kotest.koin.KoinExtension
 import io.kotest.koin.KoinLifecycleMode
 import io.ktor.client.*
@@ -16,9 +22,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.mockkClass
 import kotlinx.coroutines.CompletableDeferred
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 suspend fun <T> withKtorClient(
@@ -46,14 +52,23 @@ suspend fun <T> withKtorClient(
     return deferred.await()
 }
 
+/**
+ *  @see androidModule
+ */
+val testAndroidModule = module {
+    single<ElementRepository<BySelector, UiObject2>>(named(ElementRepositoryName.BY_SELECTOR)) {
+        BySelectorElementRepositoryImpl(get())
+    }
+
+    single<ElementRepository<UiSelector, UiObject>>(named(ElementRepositoryName.UI_SELECTOR)) {
+        UiSelectorElementRepositoryImpl(get())
+    }
+}
 val koinExtension = KoinExtension(
-    modules = listOf(androidModule, module {
-        // Declare another single<UiDeviceProvider> after androidModule to override its definition
-        single<UiDeviceProvider> {
-            mockk<UiDeviceProvider>().also {
-                every { it.get(any()) } returns mockk<UiDevice>()
-            }
-        }
-    }),
-    mode = KoinLifecycleMode.Root
+    module = testAndroidModule,
+    mockProvider = {
+        mockkClass(it, relaxed = true, relaxUnitFun = true)
+//        mockkClass(it)
+    },
+    mode = KoinLifecycleMode.Test
 )

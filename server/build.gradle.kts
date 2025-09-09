@@ -45,6 +45,7 @@ kotlin {
                 implementation(libs.kotest.extensions.koin)
                 implementation(libs.kotest.assertions.ktor)
                 implementation(libs.kotest.extensions.allure)
+                implementation(libs.koin.test)
                 implementation(libs.mockk)
             }
         }
