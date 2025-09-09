@@ -70,5 +70,5 @@ val koinExtension = KoinExtension(
         mockkClass(it, relaxed = true, relaxUnitFun = true)
 //        mockkClass(it)
     },
-    mode = KoinLifecycleMode.Test
+    mode = KoinLifecycleMode.Root
 )
