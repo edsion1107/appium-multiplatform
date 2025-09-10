@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.convention.android)
     alias(libs.plugins.convention.appruntime)
     alias(libs.plugins.convention.kotest)
+    alias(libs.plugins.kover)
 }
 
 group = "io.appium.multiplatform"

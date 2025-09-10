@@ -17,6 +17,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
 //    alias(libs.plugins.protobuf) apply false
     alias(libs.plugins.buf) apply false
+    alias(libs.plugins.kover)
 }
 
 tasks.register("clean", Delete::class).configure {
@@ -25,4 +26,9 @@ tasks.register("clean", Delete::class).configure {
     delete(
         rootProject.layout.buildDirectory,
     )
+}
+dependencies {
+    kover(projects.shared)
+    kover(projects.server)
+    kover(projects.client)
 }

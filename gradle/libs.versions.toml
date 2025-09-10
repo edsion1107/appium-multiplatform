@@ -20,6 +20,7 @@ koin = "4.1.0"
 koin-annotations = "2.2.0-Beta5"
 kotest = "6.0.2"
 kotlin-logging = "7.0.7"
+kover = "0.9.1"
 monitor = "1.7.2"
 atomicfu = "0.29.0"
 ktx-coroutines = "1.10.2"
@@ -151,7 +152,7 @@ ktor-server = ["ktor-server-core", "ktor-server-cio", "ktor-server-config-yaml",
     "ktor-server-auto-head-response", "ktor-server-default-headers", "ktor-server-caching-headers",
     "ktor-server-compression", "ktor-server-conditional-headers", "ktor-server-cors", "ktor-server-forwarded-header",
     "ktor-server-partial-content", "ktor-server-metrics-micrometer", "ktor-server-request-validation", "ktor-server-di",
-    "ktor-server-sessions", "ktor-server-auth","ktor-server-status-pages"]
+    "ktor-server-sessions", "ktor-server-auth", "ktor-server-status-pages"]
 grpc-server = ["grpc-core", "grpc-okhttp"]
 ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-logging", "ktor-client-content-negotiation",
     "ktor-serialization-kotlinx-json", "ktor-client-resources"]
@@ -184,4 +185,4 @@ buf = { id = "build.buf", version.ref = "buf" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 zipline = { id = "app.cash.zipline", version.ref = "zipline" }
 power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
-
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

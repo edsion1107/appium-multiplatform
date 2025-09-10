@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.ktx.serialization)
     alias(libs.plugins.buf)
     alias(libs.plugins.convention.kotest)
+    alias(libs.plugins.kover)
 }
 
 group = "io.appium.multiplatform"

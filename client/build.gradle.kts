@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm")
     alias(libs.plugins.project.report)
     alias(libs.plugins.convention.kotest)
+    alias(libs.plugins.kover)
 }
 
 group = "io.appium.multiplatform"
