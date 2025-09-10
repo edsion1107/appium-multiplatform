@@ -84,7 +84,7 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
                 }
 
                 logger.info { "res: $res" }
-                verify(atLeast = 1, atMost = 1) { mockUiDevice.findObject(any<BySelector>()) }
+                verify(exactly = 1) { mockUiDevice.findObject(any<BySelector>()) }
                 res.shouldBeOK()
                 res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                 val result = res.body<FindElementResponse>()
@@ -101,7 +101,7 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
                     client.post(SessionRequest.ElementsRequest(sessionId = Uuid.random()), buildElementsRequest)
                 }
                 logger.info { "res: $res" }
-                verify(atLeast = 1, atMost = 1) { mockUiDevice.findObjects(any<BySelector>()) }
+                verify(exactly = 1) { mockUiDevice.findObjects(any<BySelector>()) }
                 res.shouldBeOK()
                 res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                 val result = res.body<FindElementsResponse>()
@@ -124,7 +124,7 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
                 }
 
                 logger.info { "res: $res" }
-                verify(atLeast = 1, atMost = 1) { mockUiDevice.findObject(any<BySelector>()) }
+                verify(exactly = 1) { mockUiDevice.findObject(any<BySelector>()) }
                 res.shouldBeNotFound()
                 res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                 val result = res.body<Status>()
@@ -139,7 +139,7 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
                     client.post(SessionRequest.ElementsRequest(sessionId = Uuid.random()), buildElementsRequest)
                 }
                 logger.info { "res: $res" }
-                verify(atLeast = 1, atMost = 1) { mockUiDevice.findObjects(any<BySelector>()) }
+                verify(exactly = 1) { mockUiDevice.findObjects(any<BySelector>()) }
                 res.shouldBeNotFound()
                 res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                 val result = res.body<Status>()
