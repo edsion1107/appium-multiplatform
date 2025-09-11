@@ -1,6 +1,7 @@
 package io.appium.multiplatform.service
 
 
+import android.os.Bundle
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
@@ -25,6 +26,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -39,7 +41,7 @@ import kotlin.uuid.Uuid
 class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
     val logger = KotlinLogging.logger {}
 
-    lateinit var mockUiDevice: UiDevice
+    val mockUiDevice: UiDevice = mockk<UiDevice>()
 
     val buildElementRequest: HttpRequestBuilder.() -> Unit = {
         setBody(
@@ -64,15 +66,17 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
 
     init {
         extension(koinExtension)
-        beforeContainer {
-            val uiDeviceProvider = declareMock<UiDeviceProvider>()
-            mockUiDevice = uiDeviceProvider.get()
-            // Must keep using the same mockUiDevice instance to verify a single invocation;
-            // otherwise, a new object would be created each time.
-            every { uiDeviceProvider.get(any()) } returns mockUiDevice
+        beforeEach {
+            // 这是解决ElementRepository需要注入参数，并且保证verify成功的关键（唯一的mockUiDevice）
+            declareMock<UiDeviceProvider> {
+                every { get(any<Bundle>()) } returns mockUiDevice
+            }
+        }
+        afterEach {
+            clearAllMocks()
         }
         context("Positive Scenarios").config(enabled = true) {
-            beforeTest {
+            beforeEach {
                 // className should be empty and not match request, because this is a fake UiObject2
                 val mockUiObject2 = mockk<UiObject2>(relaxed = true)
                 every { mockUiDevice.findObject(any<BySelector>()) } returns mockUiObject2
@@ -114,7 +118,7 @@ class BySelectorElementRepositoryImplTest : FunSpec(), KoinTest {
             }
         }
         context("Negative Scenarios").config(enabled = true) {
-            beforeTest {
+            beforeEach {
                 every { mockUiDevice.findObject(any<BySelector>()) } returns null
                 every { mockUiDevice.findObjects(any<BySelector>()) } returns emptyList()
             }
