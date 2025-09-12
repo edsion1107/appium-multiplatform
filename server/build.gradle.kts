@@ -62,10 +62,18 @@ kotlin {
                 implementation(libs.bundles.androidx.test)
             }
         }
-        androidUnitTest{
+        androidUnitTest {
             dependencies {
                 implementation(libs.mockk.android)
                 implementation(libs.mockk.agent)
+            }
+        }
+        androidInstrumentedTest {
+            dependencies {
+                implementation(project.dependencies.enforcedPlatform(projects.platform))
+                implementation(libs.bundles.ktor.client)
+                implementation(libs.kotest.assertions.core)
+                implementation(libs.kotest.assertions.ktor)
             }
         }
 
@@ -94,9 +102,14 @@ android {
             resources.srcDir("src/commonMain/resources")
         }
     }
-    testOptions{
-        unitTests.all {
-            it.useJUnitPlatform()
+
+    packaging {
+        resources {
+            // In order to solve the compilation error problem of the ktor client
+            pickFirsts.add("META-INF/AL2.0")
+            pickFirsts.add("META-INF/LGPL2.1")
+            pickFirsts.add("META-INF/LICENSE.md")
+            pickFirsts.add("META-INF/LICENSE-notice.md")
         }
     }
 }

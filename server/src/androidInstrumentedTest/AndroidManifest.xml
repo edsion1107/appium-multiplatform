@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <instrumentation>
+        <!--
+        'remoteMethod' is an experimental feature provided by androidx.test.runner.AndroidJUnitRunner.
+        It invokes a static method via reflection immediately after parsing arguments.
+        This execution happens before any Listeners or TestRules, making it one of the earliest
+        executable methods in the framework, suitable for one-time, early initialization tasks.
+
+        For example, the 'io.appium.multiplatform.Main_androidKt#init' method is used to
+        initialize KotlinLogging. Without this early setup, logs from Ktor's HttpClient (via the
+        Logging plugin) are output to System.err. After this method is executed, they are
+        correctly routed to System.out.
+
+        Using this approach provides a static, default configuration within the manifest.
+        This is more robust than using dynamic 'manifestPlaceholders' and prevents the common
+        problem of forgetting to pass 'testInstrumentationRunnerArguments' when executing tests
+        from the command line (CLI).
+        -->
+        <meta-data
+            android:name="remoteMethod"
+            android:value="io.appium.multiplatform.Main_androidKt#init"/>
+    </instrumentation>
+</manifest>
