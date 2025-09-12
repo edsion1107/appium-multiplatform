@@ -27,19 +27,26 @@ import kotlinx.coroutines.CompletableDeferred
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+val clientDefaultConfig: HttpClientConfig<*>.() -> Unit = {
+    // 默认配置
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.HEADERS
+    }
+    install(HttpCookies)
+    install(DefaultRequest) {
+        header(HttpHeaders.ContentType, ContentType.Application.ProtoBuf)
+    }
+    install(ContentNegotiation) {
+        register(ContentType.Application.ProtoBuf, ProtobufContentConverter())
+        json(defaultJson)
+    }
+    install(Resources)
+    CurlUserAgent()
+}
+
 suspend fun <T> withKtorClient(
-    clientConfig: HttpClientConfig<*>.() -> Unit = {
-        // 默认配置
-        install(Logging) { logger = Logger.DEFAULT; level = LogLevel.HEADERS }
-        install(HttpCookies)
-        install(DefaultRequest) { header(HttpHeaders.ContentType, ContentType.Application.ProtoBuf) }
-        install(ContentNegotiation) {
-            register(ContentType.Application.ProtoBuf, ProtobufContentConverter())
-            json(defaultJson)
-        }
-        install(Resources)
-        CurlUserAgent()
-    }, block: suspend (HttpClient) -> T
+    clientConfig: HttpClientConfig<*>.() -> Unit = clientDefaultConfig, block: suspend (HttpClient) -> T
 ): T {
     val deferred = CompletableDeferred<T>()
     testApplication {
