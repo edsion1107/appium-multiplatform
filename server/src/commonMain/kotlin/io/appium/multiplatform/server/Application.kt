@@ -8,17 +8,8 @@ import io.ktor.server.cio.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-//import io.ktor.server.routing.post
-
-@Suppress("unused")
-private val static = object {
-    init {
-        init()
-    }
-}
-
-
 fun main(args: Array<String>) {
+    init()
     val koinApplication = initKoin()
 
     EngineMain.main(args)

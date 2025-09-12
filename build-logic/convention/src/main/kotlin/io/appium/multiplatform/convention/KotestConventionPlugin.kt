@@ -27,7 +27,10 @@ class KotestConventionPlugin : Plugin<Project> {
             systemProperties(
                 mapOf(
                     "kotest.framework.dump.config" to true,
-                    "kotest.framework.config.fqn" to "io.appium.multiplatform.ProjectConfig",
+                    "kotest.framework.assertion.globalassertsoftly" to true,
+                    //During unit tests the init method is never called, so configure the KotlinLogging logger globally here.
+                    "org.slf4j.simpleLogger.logFile" to "System.out",
+                    "org.slf4j.simpleLogger.defaultLogLevel" to "INFO",
                 )
             )
         }

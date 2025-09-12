@@ -23,6 +23,7 @@ actual val logger: KLogger = run {
 
 
 actual fun init() {
+    println("init, ${logger.name}")
     logger.debug { "init" }
     Thread.currentThread().contextClassLoader.getResource("application.yaml")
         ?.let { logger.info { "Starting application at $it" } }
