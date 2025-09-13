@@ -9,14 +9,19 @@ import io.appium.multiplatform.withKtorClient
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.ktor.client.shouldBeBadRequest
 import io.kotest.assertions.ktor.client.shouldBeOK
+import io.kotest.assertions.ktor.client.shouldHaveContentType
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -77,7 +82,15 @@ class WebdriverRouteTest : FunSpec(
                     }
                     verify(exactly = 1) { bySelectorElementRepository.findElement(any<BySelector>()) }
                     res.shouldBeOK()
+                    res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                     val result = res.body<FindElementResponse>()
+                    result.hasElement().shouldBeTrue()
+                    result.element.hasUiobject2().shouldBeTrue()
+                    result.element.hasUiobject().shouldBeFalse()
+                    result.element.uiobject2.also {
+                        it.shouldBeInstanceOf<UiObject2>()
+                        it.className.shouldBeEmpty()
+                    }
                 }
                 test("ElementsRequest") {
                     val protoBody = findElementRequest {
@@ -91,11 +104,60 @@ class WebdriverRouteTest : FunSpec(
                     }
                     verify(exactly = 1) { bySelectorElementRepository.findElements(any<BySelector>()) }
                     res.shouldBeOK()
+                    res.shouldHaveContentType(ContentType.Application.ProtoBuf)
                     val result = res.body<FindElementsResponse>()
+                    result.elementsList.shouldBeSingleton {
+                        it.hasUiobject2().shouldBeTrue()
+                        it.hasUiobject().shouldBeFalse()
+                        it.uiobject2.shouldBeInstanceOf<UiObject2>()
+                        it.uiobject2.className.shouldBeEmpty()
+                    }
                 }
             }
             context("with UiSelector") {
-
+                test("ElementRequest") {
+                    val protoBody = findElementRequest {
+                        ui = uiSelector { className = "android.widget.TextView" }
+                        isMultiple = false
+                    }
+                    val res = withKtorClient { client ->
+                        client.post(SessionRequest.ElementRequest(sessionId = Uuid.random())) {
+                            setBody(protoBody)
+                        }
+                    }
+                    verify(exactly = 1) { uiSelectorElementRepository.findElement(any<UiSelector>()) }
+                    res.shouldBeOK()
+                    res.shouldHaveContentType(ContentType.Application.ProtoBuf)
+                    val result = res.body<FindElementResponse>()
+                    result.hasElement().shouldBeTrue()
+                    result.element.hasUiobject2().shouldBeFalse()
+                    result.element.hasUiobject().shouldBeTrue()
+                    result.element.uiobject.also {
+                        it.shouldBeInstanceOf<UiObject>()
+                        it.className.shouldBeEmpty()
+                    }
+                }
+                test("ElementsRequest") {
+                    val protoBody = findElementRequest {
+                        ui = uiSelector { className = "android.widget.TextView" }
+                        isMultiple = true
+                    }
+                    val res = withKtorClient { client ->
+                        client.post(SessionRequest.ElementsRequest(sessionId = Uuid.random())) {
+                            setBody(protoBody)
+                        }
+                    }
+                    verify(exactly = 1) { uiSelectorElementRepository.findElements(any<UiSelector>()) }
+                    res.shouldBeOK()
+                    res.shouldHaveContentType(ContentType.Application.ProtoBuf)
+                    val result = res.body<FindElementsResponse>()
+                    result.elementsList.shouldBeSingleton {
+                        it.hasUiobject2().shouldBeFalse()
+                        it.hasUiobject().shouldBeTrue()
+                        it.uiobject.shouldBeInstanceOf<UiObject>()
+                        it.uiobject.className.shouldBeEmpty()
+                    }
+                }
             }
         }
         context("Negative Scenarios").config(enabled = true) {
