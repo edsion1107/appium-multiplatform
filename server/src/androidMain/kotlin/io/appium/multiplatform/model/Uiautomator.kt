@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.test.uiautomator.By
 import java.util.regex.Pattern
-
+import io.appium.multiplatform.model.BySelector as ProtoBySelector
 /**
  * Converts a protobuf-based `BySelector` to an Android UiAutomator `BySelector`.
  *
@@ -16,7 +16,7 @@ import java.util.regex.Pattern
  * @return An `androidx.test.uiautomator.BySelector` instance representing the protobuf-based criteria.
  */
 @SuppressLint("ObsoleteSdkInt")
-fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
+fun ProtoBySelector.asUiAutomator(): androidx.test.uiautomator.BySelector {
 
 
     var uiSelector: androidx.test.uiautomator.BySelector? = null
@@ -33,18 +33,6 @@ fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
      * @param initial A lambda that creates a new selector if `uiSelector` is null.
      * @return The updated `uiSelector` or null if the value is null and `uiSelector` was null.
      */
-    fun <T> androidx.test.uiautomator.BySelector?.chain(
-        value: T?,
-        // func: How to add a condition to uiSelector if it's not null
-        func: androidx.test.uiautomator.BySelector.(T) -> androidx.test.uiautomator.BySelector,
-        // initial: How to create a new selector if uiSelector is null
-        initial: (T) -> androidx.test.uiautomator.BySelector
-    ): androidx.test.uiautomator.BySelector? {
-        return value?.let {
-            this?.func(it) ?: initial(it)
-        } ?: this // If value is null, keep uiSelector unchanged
-    }
-
     fun <T> androidx.test.uiautomator.BySelector?.chain(
         value: T,
         // func: How to add a condition to uiSelector if it's not null
@@ -157,25 +145,25 @@ fun BySelector.toBySelector(): androidx.test.uiautomator.BySelector {
     }
     if (hasAncestor()) {
         finalSelector = finalSelector.chain(
-            ancestor.toBySelector(),
+            ancestor.asUiAutomator(),
             androidx.test.uiautomator.BySelector::hasAncestor,
             By::hasAncestor
         )
     }
     if (hasChild()) {
         finalSelector =
-            finalSelector.chain(child.toBySelector(), androidx.test.uiautomator.BySelector::hasChild, By::hasChild)
+            finalSelector.chain(child.asUiAutomator(), androidx.test.uiautomator.BySelector::hasChild, By::hasChild)
     }
     if (hasDescendant()) {
         finalSelector = finalSelector.chain(
-            descendant.toBySelector(),
+            descendant.asUiAutomator(),
             androidx.test.uiautomator.BySelector::hasDescendant,
             By::hasDescendant
         )
     }
     if (hasParent()) {
         finalSelector =
-            finalSelector.chain(parent.toBySelector(), androidx.test.uiautomator.BySelector::hasParent, By::hasParent)
+            finalSelector.chain(parent.asUiAutomator(), androidx.test.uiautomator.BySelector::hasParent, By::hasParent)
     }
 
     return finalSelector

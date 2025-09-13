@@ -1,9 +1,10 @@
 package io.appium.multiplatform.model
 
+import io.appium.multiplatform.model.BySelector as ProtoBySelector
 /**
  * for testing
  */
-fun BySelector.toUiObject2(): UiObject2 {
+fun ProtoBySelector.toUiObject2(): UiObject2 {
     return uiObject2 {
         (this@toUiObject2.clazz ?: this@toUiObject2.clazzPattern?.text)?.also { className = it }
         (this@toUiObject2.desc ?: this@toUiObject2.descPattern?.text)?.also { contentDescription = it }
