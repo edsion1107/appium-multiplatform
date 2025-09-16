@@ -5,6 +5,12 @@ import android.os.Build
 import androidx.test.uiautomator.By
 import java.util.regex.Pattern
 import io.appium.multiplatform.model.BySelector as ProtoBySelector
+
+
+internal fun getBuildVersion(): Int {
+    return Build.VERSION.SDK_INT
+}
+
 /**
  * Converts a protobuf-based `BySelector` to an Android UiAutomator `BySelector`.
  *
@@ -15,7 +21,7 @@ import io.appium.multiplatform.model.BySelector as ProtoBySelector
  *
  * @return An `androidx.test.uiautomator.BySelector` instance representing the protobuf-based criteria.
  */
-@SuppressLint("ObsoleteSdkInt")
+@SuppressLint("ObsoleteSdkInt", "NewApi")
 fun ProtoBySelector.asUiAutomator(): androidx.test.uiautomator.BySelector {
 
 
@@ -91,7 +97,7 @@ fun ProtoBySelector.asUiAutomator(): androidx.test.uiautomator.BySelector {
             By::text
         )
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    if (getBuildVersion() >= Build.VERSION_CODES.O) {
         if (hasHint()) {
             uiSelector = uiSelector.chain(hint, androidx.test.uiautomator.BySelector::hint, By::hint)
         } else if (hasHintPattern()) {
@@ -133,7 +139,7 @@ fun ProtoBySelector.asUiAutomator(): androidx.test.uiautomator.BySelector {
     if (hasDepth()) {
         uiSelector = uiSelector.chain(depth, androidx.test.uiautomator.BySelector::depth, By::depth)
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    if (getBuildVersion() >= Build.VERSION_CODES.R) {
         if (hasDisplayId()) {
             uiSelector = uiSelector.chain(displayId, androidx.test.uiautomator.BySelector::displayId, By::displayId)
         }
