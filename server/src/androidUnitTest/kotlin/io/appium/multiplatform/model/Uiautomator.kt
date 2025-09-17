@@ -2,7 +2,8 @@ package io.appium.multiplatform.model
 
 
 import android.os.Build
-import androidx.test.uiautomator.BySelector
+import android.view.Display.INVALID_DISPLAY
+import androidx.test.uiautomator.UiObject2
 import io.appium.multiplatform.jvm.ReflectiveAccess.Companion.reflectField
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.throwables.shouldThrow
@@ -10,183 +11,103 @@ import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.engine.names.WithDataTestName
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.ints.shouldBeZero
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.reflection.shouldHaveMemberProperty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import java.util.regex.Pattern
 import kotlin.uuid.Uuid
 
-data class StringProperty(val name: String, val value: String = Uuid.random().toString(), val flags: Int?) :
-    WithDataTestName {
-    override fun dataTestName(): String = "[$name]-$value"
-    fun toProto(): io.appium.multiplatform.model.BySelector = when (name) {
-        "clazz" -> bySelector {
-            if (flags == null) {
-                clazz = value
-            } else {
-                clazzPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        "desc" -> bySelector {
-            if (flags == null) {
-                desc = value
-            } else {
-                descPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        "pkg" -> bySelector {
-            if (flags == null) {
-                pkg = value
-            } else {
-                pkgPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        "res" -> bySelector {
-            if (flags == null) {
-                res = value
-            } else {
-                resPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        "text" -> bySelector {
-            if (flags == null) {
-                text = value
-            } else {
-                textPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        "hint" -> bySelector {
-            if (flags == null) {
-                hint = value
-            } else {
-                hintPattern = regexPattern {
-                    text = value
-                    flags = flags
-                }
-            }
-        }
-
-        else -> throw RuntimeException("unsupported property: $name")
-    }
-}
-
-data class BooleanProperty(val name: String, val value: Boolean) : WithDataTestName {
-    override fun dataTestName(): String = "[$name]-$value"
-    fun toProto(): io.appium.multiplatform.model.BySelector = when (name) {
-        "checkable" -> bySelector { checkable = value }
-        "checked" -> bySelector { checked = value }
-        "clickable" -> bySelector { clickable = value }
-        "enabled" -> bySelector { enabled = value }
-        "focusable" -> bySelector { focusable = value }
-        "focused" -> bySelector { focused = value }
-        "long_clickable" -> bySelector { longClickable = value }
-        "scrollable" -> bySelector { scrollable = value }
-        "selected" -> bySelector { selected = value }
-        else -> throw RuntimeException("unsupported property: $name")
-    }
-}
-
-data class IntProperty(val name: String, val value: Int) : WithDataTestName {
-    override fun dataTestName(): String = "[$name]-$value"
-    fun toProto(): io.appium.multiplatform.model.BySelector = when (name) {
-        "depth" -> bySelector { depth = value }
-        "display_id" -> bySelector { displayId = value }
-        else -> throw RuntimeException("unsupported property: $name")
-    }
-}
-
 @OptIn(ExperimentalKotest::class)
 class Uiautomator : FunSpec() {
     val logger = KotlinLogging.logger {}
+    val uiObject2 = mockk<UiObject2>(relaxed = true)
+
     init {
         context("BySelector") {
 
             context("properties") {
-                withData(listOf(
-                    StringProperty("clazz", flags = null),
-                    StringProperty("clazz", flags = 0),
-                    StringProperty("clazz", flags = 0x32)
-                )){input->
-                    val by =input.toProto().asUiAutomator()
+                withData(
+                    listOf(
+                        StringProperty("clazz", flags = null),
+                        StringProperty("clazz", flags = 0),
+                        StringProperty("clazz", flags = 0x32)
+                    )
+                ) { input ->
+                    val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
                     by::class.shouldHaveMemberProperty("mClazz")
                     (reflectField(by::class.java, "mClazz").get(by) as Pattern)
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
-                withData(listOf(
+                withData(
+                    listOf(
                         StringProperty("desc", flags = null),
                         StringProperty("desc", flags = 0),
                         StringProperty("desc", flags = 0x32)
-                    )) { input ->
+                    )
+                ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
                     by::class.shouldHaveMemberProperty("mDesc")
                     (reflectField(by::class.java, "mDesc").get(by) as Pattern)
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
-                withData(listOf(
-                    StringProperty("pkg", flags = null),
-                    StringProperty("pkg", flags = 0),
-                    StringProperty("pkg", flags = 0x32)
-                )) { input ->
+                withData(
+                    listOf(
+                        StringProperty("pkg", flags = null),
+                        StringProperty("pkg", flags = 0),
+                        StringProperty("pkg", flags = 0x32)
+                    )
+                ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
                     by::class.shouldHaveMemberProperty("mPkg")
                     (reflectField(by::class.java, "mPkg").get(by) as Pattern)
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
-                withData(listOf(
-                    StringProperty("res", flags = null),
-                    StringProperty("res", flags = 0),
-                    StringProperty("res", flags = 0x32)
-                )) { input ->
+                withData(
+                    listOf(
+                        StringProperty("res", flags = null),
+                        StringProperty("res", flags = 0),
+                        StringProperty("res", flags = 0x32)
+                    )
+                ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
                     by::class.shouldHaveMemberProperty("mRes")
                     (reflectField(by::class.java, "mRes").get(by) as Pattern)
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
-                withData(listOf(
-                    StringProperty("text", flags = null),
-                    StringProperty("text", flags = 0),
-                    StringProperty("text", flags = 0x32)
-                )) { input ->
+                withData(
+                    listOf(
+                        StringProperty("text", flags = null),
+                        StringProperty("text", flags = 0),
+                        StringProperty("text", flags = 0x32)
+                    )
+                ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
                     by::class.shouldHaveMemberProperty("mText")
                     (reflectField(by::class.java, "mText").get(by) as Pattern)
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
-                withData(listOf(
-                    StringProperty("hint", flags = null),
-                    StringProperty("hint", flags = 0),
-                    StringProperty("hint", flags = 0x32)
-                )) { input ->
+                withData(
+                    listOf(
+                        StringProperty("hint", flags = null),
+                        StringProperty("hint", flags = 0),
+                        StringProperty("hint", flags = 0x32)
+                    )
+                ) { input ->
                     mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
                     every { getBuildVersion() } returns Build.VERSION_CODES.O
                     val by = input.toProto().asUiAutomator()
@@ -323,11 +244,13 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 context("Negative Scenarios") {
-                    withData(listOf(
-                        StringProperty("hint", flags = null),
-                        StringProperty("hint", flags = 0),
-                        StringProperty("hint", flags = 0x32)
-                    )) { input ->
+                    withData(
+                        listOf(
+                            StringProperty("hint", flags = null),
+                            StringProperty("hint", flags = 0),
+                            StringProperty("hint", flags = 0x32)
+                        )
+                    ) { input ->
                         mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
                         every { getBuildVersion() } returns Build.VERSION_CODES.N
                         val proto = input.toProto()
@@ -348,6 +271,164 @@ class Uiautomator : FunSpec() {
                     }
                 }
             }
+        }
+        context("UiObject2") {
+            beforeEach {
+                clearMocks(uiObject2)
+            }
+            test("properties") {
+                val proto = uiObject2.toProto()
+                //String
+                proto.className.shouldBeEmpty()
+                proto.contentDescription.shouldBeEmpty()
+                proto.applicationPackage.shouldBeEmpty()
+                proto.resourceName.shouldBeEmpty()
+                proto.text.shouldBeEmpty()
+                proto.hint.shouldBeEmpty()
+
+                //bool
+                proto.isCheckable.shouldBeFalse()
+                proto.isChecked.shouldBeFalse()
+                proto.isClickable.shouldBeFalse()
+                proto.isEnabled.shouldBeFalse()
+                proto.isFocusable.shouldBeFalse()
+                proto.isFocused.shouldBeFalse()
+                proto.isLongClickable.shouldBeFalse()
+                proto.isScrollable.shouldBeFalse()
+                proto.isSelected.shouldBeFalse()
+
+                // int
+                proto.displayId.shouldBeZero()
+                proto.drawingOrder.shouldBeZero()
+                proto.childCount.shouldBeZero()
+
+                proto.hasVisibleBounds().shouldBeTrue()
+                proto.visibleBounds.left.shouldBeZero()
+                proto.visibleBounds.right.shouldBeZero()
+                proto.visibleBounds.top.shouldBeZero()
+                proto.visibleBounds.bottom.shouldBeZero()
+
+                proto.hasVisibleCenter().shouldBeTrue()
+                proto.visibleCenter.x.shouldBeZero()
+                proto.visibleCenter.y.shouldBeZero()
+            }
+            test("nullable properties") {
+                every { uiObject2.className } returns null
+                every { uiObject2.contentDescription } returns null
+                every { uiObject2.applicationPackage } returns null
+                every { uiObject2.resourceName } returns null
+                every { uiObject2.text } returns null
+                every { uiObject2.hint } returns null
+                every { uiObject2.displayId } returns INVALID_DISPLAY
+                val proto = uiObject2.toProto()
+                proto.hasClassName().shouldBeFalse()
+                proto.hasContentDescription().shouldBeFalse()
+                proto.hasApplicationPackage().shouldBeFalse()
+                proto.hasResourceName().shouldBeFalse()
+                proto.hasText().shouldBeFalse()
+                proto.hasHint().shouldBeFalse()
+                proto.hasDisplayId().shouldBeTrue()
+                proto.displayId.shouldBe(-1)
+            }
+        }
+    }
+
+    data class StringProperty(val name: String, val value: String = Uuid.random().toString(), val flags: Int?) :
+        WithDataTestName {
+        override fun dataTestName(): String = "[$name]-$value"
+        fun toProto(): BySelector = when (name) {
+            "clazz" -> bySelector {
+                if (flags == null) {
+                    clazz = value
+                } else {
+                    clazzPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            "desc" -> bySelector {
+                if (flags == null) {
+                    desc = value
+                } else {
+                    descPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            "pkg" -> bySelector {
+                if (flags == null) {
+                    pkg = value
+                } else {
+                    pkgPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            "res" -> bySelector {
+                if (flags == null) {
+                    res = value
+                } else {
+                    resPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            "text" -> bySelector {
+                if (flags == null) {
+                    text = value
+                } else {
+                    textPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            "hint" -> bySelector {
+                if (flags == null) {
+                    hint = value
+                } else {
+                    hintPattern = regexPattern {
+                        text = value
+                        flags = flags
+                    }
+                }
+            }
+
+            else -> throw RuntimeException("unsupported property: $name")
+        }
+    }
+
+    data class BooleanProperty(val name: String, val value: Boolean) : WithDataTestName {
+        override fun dataTestName(): String = "[$name]-$value"
+        fun toProto(): BySelector = when (name) {
+            "checkable" -> bySelector { checkable = value }
+            "checked" -> bySelector { checked = value }
+            "clickable" -> bySelector { clickable = value }
+            "enabled" -> bySelector { enabled = value }
+            "focusable" -> bySelector { focusable = value }
+            "focused" -> bySelector { focused = value }
+            "long_clickable" -> bySelector { longClickable = value }
+            "scrollable" -> bySelector { scrollable = value }
+            "selected" -> bySelector { selected = value }
+            else -> throw RuntimeException("unsupported property: $name")
+        }
+    }
+
+    data class IntProperty(val name: String, val value: Int) : WithDataTestName {
+        override fun dataTestName(): String = "[$name]-$value"
+        fun toProto(): BySelector = when (name) {
+            "depth" -> bySelector { depth = value }
+            "display_id" -> bySelector { displayId = value }
+            else -> throw RuntimeException("unsupported property: $name")
         }
     }
 }
