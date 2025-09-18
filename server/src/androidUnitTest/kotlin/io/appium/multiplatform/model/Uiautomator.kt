@@ -38,9 +38,9 @@ class Uiautomator : FunSpec() {
             context("properties") {
                 withData(
                     listOf(
-                        StringProperty("clazz", flags = null),
-                        StringProperty("clazz", flags = 0),
-                        StringProperty("clazz", flags = 0x32)
+                        Property("clazz", Uuid.random().toString(), flags = null),
+                        Property("clazz", Uuid.random().toString(), flags = 0),
+                        Property("clazz", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
@@ -51,9 +51,9 @@ class Uiautomator : FunSpec() {
                 }
                 withData(
                     listOf(
-                        StringProperty("desc", flags = null),
-                        StringProperty("desc", flags = 0),
-                        StringProperty("desc", flags = 0x32)
+                        Property("desc", Uuid.random().toString(), flags = null),
+                        Property("desc", Uuid.random().toString(), flags = 0),
+                        Property("desc", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
@@ -64,9 +64,9 @@ class Uiautomator : FunSpec() {
                 }
                 withData(
                     listOf(
-                        StringProperty("pkg", flags = null),
-                        StringProperty("pkg", flags = 0),
-                        StringProperty("pkg", flags = 0x32)
+                        Property("pkg", Uuid.random().toString(), flags = null),
+                        Property("pkg", Uuid.random().toString(), flags = 0),
+                        Property("pkg", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
@@ -77,9 +77,9 @@ class Uiautomator : FunSpec() {
                 }
                 withData(
                     listOf(
-                        StringProperty("res", flags = null),
-                        StringProperty("res", flags = 0),
-                        StringProperty("res", flags = 0x32)
+                        Property("res", Uuid.random().toString(), flags = null),
+                        Property("res", Uuid.random().toString(), flags = 0),
+                        Property("res", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
@@ -90,9 +90,9 @@ class Uiautomator : FunSpec() {
                 }
                 withData(
                     listOf(
-                        StringProperty("text", flags = null),
-                        StringProperty("text", flags = 0),
-                        StringProperty("text", flags = 0x32)
+                        Property("text", Uuid.random().toString(), flags = null),
+                        Property("text", Uuid.random().toString(), flags = 0),
+                        Property("text", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
@@ -103,9 +103,9 @@ class Uiautomator : FunSpec() {
                 }
                 withData(
                     listOf(
-                        StringProperty("hint", flags = null),
-                        StringProperty("hint", flags = 0),
-                        StringProperty("hint", flags = 0x32)
+                        Property("hint", Uuid.random().toString(), flags = null),
+                        Property("hint", Uuid.random().toString(), flags = 0),
+                        Property("hint", Uuid.random().toString(), flags = 0x32)
                     )
                 ) { input ->
                     mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
@@ -117,8 +117,8 @@ class Uiautomator : FunSpec() {
                         .pattern().shouldContain(input.value).shouldNotBeBlank()
                 }
                 withData(
-                    BooleanProperty("checkable", true),
-                    BooleanProperty("checkable", false)
+                    Property("checkable", true),
+                    Property("checkable", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -128,8 +128,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("checked", true),
-                    BooleanProperty("checked", false)
+                    Property("checked", true),
+                    Property("checked", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -139,8 +139,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("clickable", true),
-                    BooleanProperty("clickable", false)
+                    Property("clickable", true),
+                    Property("clickable", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -150,8 +150,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("enabled", true),
-                    BooleanProperty("enabled", false)
+                    Property("enabled", true),
+                    Property("enabled", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -161,8 +161,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("focusable", true),
-                    BooleanProperty("focusable", false)
+                    Property("focusable", true),
+                    Property("focusable", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -172,8 +172,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("focused", true),
-                    BooleanProperty("focused", false)
+                    Property("focused", true),
+                    Property("focused", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -183,8 +183,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("long_clickable", true),
-                    BooleanProperty("long_clickable", false)
+                    Property("long_clickable", true),
+                    Property("long_clickable", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -194,8 +194,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("scrollable", true),
-                    BooleanProperty("scrollable", false)
+                    Property("scrollable", true),
+                    Property("scrollable", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -205,8 +205,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    BooleanProperty("selected", true),
-                    BooleanProperty("selected", false)
+                    Property("selected", true),
+                    Property("selected", false)
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -216,8 +216,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    IntProperty("depth", 0),
-                    IntProperty("depth", 1),
+                    Property("depth", 0),
+                    Property("depth", 1),
                 ) { input ->
                     val by = input.toProto().asUiAutomator()
                     logger.info { "$input, $by" }
@@ -231,8 +231,8 @@ class Uiautomator : FunSpec() {
                         .shouldNotBeNull()
                 }
                 withData(
-                    IntProperty("display_id", 0),
-                    IntProperty("display_id", 1),
+                    Property("display_id", 0),
+                    Property("display_id", 1),
                 ) { input ->
                     mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
                     every { getBuildVersion() } returns Build.VERSION_CODES.R
@@ -246,9 +246,9 @@ class Uiautomator : FunSpec() {
                 context("Negative Scenarios") {
                     withData(
                         listOf(
-                            StringProperty("hint", flags = null),
-                            StringProperty("hint", flags = 0),
-                            StringProperty("hint", flags = 0x32)
+                            Property("hint", Uuid.random().toString(), flags = null),
+                            Property("hint", Uuid.random().toString(), flags = 0),
+                            Property("hint", Uuid.random().toString(), flags = 0x32)
                         )
                     ) { input ->
                         mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
@@ -259,8 +259,8 @@ class Uiautomator : FunSpec() {
                         }
                     }
                     withData(
-                        IntProperty("display_id", 0),
-                        IntProperty("display_id", 1),
+                        Property("display_id", 0),
+                        Property("display_id", 1),
                     ) { input ->
                         mockkStatic("io.appium.multiplatform.model.UiautomatorKt")
                         every { getBuildVersion() } returns Build.VERSION_CODES.Q
@@ -333,16 +333,32 @@ class Uiautomator : FunSpec() {
         }
     }
 
-    data class StringProperty(val name: String, val value: String = Uuid.random().toString(), val flags: Int?) :
-        WithDataTestName {
-        override fun dataTestName(): String = "[$name]-$value"
-        fun toProto(): BySelector = when (name) {
+
+    data class Property<T>(val name: String, val value: T, val flags: Int? = null) : WithDataTestName {
+        override fun dataTestName(): String = this.toString()
+        fun toProto(): BySelector = when (value) {
+            is Int -> toProtoInt(value)
+            is String -> toProtoString(value)
+            is Boolean -> toProtoBoolean(value)
+            else -> throw IllegalArgumentException(
+                "Unsupported value type: ${value!!::class.qualifiedName}"
+            )
+        }
+
+        // 以下方法保持私有，只在 toProto 内部分派
+        private fun toProtoInt(v: Int): BySelector = when (name) {
+            "depth" -> bySelector { depth = v }
+            "display_id" -> bySelector { displayId = v }
+            else -> throw RuntimeException("unsupported property: $name")
+        }
+
+        private fun toProtoString(v: String): BySelector = when (name) {
             "clazz" -> bySelector {
                 if (flags == null) {
-                    clazz = value
+                    clazz = v
                 } else {
                     clazzPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
@@ -350,10 +366,10 @@ class Uiautomator : FunSpec() {
 
             "desc" -> bySelector {
                 if (flags == null) {
-                    desc = value
+                    desc = v
                 } else {
                     descPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
@@ -361,10 +377,10 @@ class Uiautomator : FunSpec() {
 
             "pkg" -> bySelector {
                 if (flags == null) {
-                    pkg = value
+                    pkg = v
                 } else {
                     pkgPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
@@ -372,10 +388,10 @@ class Uiautomator : FunSpec() {
 
             "res" -> bySelector {
                 if (flags == null) {
-                    res = value
+                    res = v
                 } else {
                     resPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
@@ -383,10 +399,10 @@ class Uiautomator : FunSpec() {
 
             "text" -> bySelector {
                 if (flags == null) {
-                    text = value
+                    text = v
                 } else {
                     textPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
@@ -394,40 +410,27 @@ class Uiautomator : FunSpec() {
 
             "hint" -> bySelector {
                 if (flags == null) {
-                    hint = value
+                    hint = v
                 } else {
                     hintPattern = regexPattern {
-                        text = value
+                        text = v
                         flags = flags
                     }
                 }
             }
-
             else -> throw RuntimeException("unsupported property: $name")
         }
-    }
 
-    data class BooleanProperty(val name: String, val value: Boolean) : WithDataTestName {
-        override fun dataTestName(): String = "[$name]-$value"
-        fun toProto(): BySelector = when (name) {
-            "checkable" -> bySelector { checkable = value }
-            "checked" -> bySelector { checked = value }
-            "clickable" -> bySelector { clickable = value }
-            "enabled" -> bySelector { enabled = value }
-            "focusable" -> bySelector { focusable = value }
-            "focused" -> bySelector { focused = value }
-            "long_clickable" -> bySelector { longClickable = value }
-            "scrollable" -> bySelector { scrollable = value }
-            "selected" -> bySelector { selected = value }
-            else -> throw RuntimeException("unsupported property: $name")
-        }
-    }
-
-    data class IntProperty(val name: String, val value: Int) : WithDataTestName {
-        override fun dataTestName(): String = "[$name]-$value"
-        fun toProto(): BySelector = when (name) {
-            "depth" -> bySelector { depth = value }
-            "display_id" -> bySelector { displayId = value }
+        private fun toProtoBoolean(v: Boolean): BySelector = when (name) {
+            "checkable" -> bySelector { checkable = v }
+            "checked" -> bySelector { checked = v }
+            "clickable" -> bySelector { clickable = v }
+            "enabled" -> bySelector { enabled = v }
+            "focusable" -> bySelector { focusable = v }
+            "focused" -> bySelector { focused = v }
+            "long_clickable" -> bySelector { longClickable = v }
+            "scrollable" -> bySelector { scrollable = v }
+            "selected" -> bySelector { selected = v }
             else -> throw RuntimeException("unsupported property: $name")
         }
     }
